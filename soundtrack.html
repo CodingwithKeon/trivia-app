@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Trivia Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; display: block; }
+    </style>
+</head>
+<body>
+
+    <audio id="globalMusic" loop>
+        <source src="soundtracks/ea_fc_theme.mp3" type="audio/mpeg">
+      </audio>
+
+    <iframe src="index.html" id="gameViewport" allow="autoplay"></iframe>
+
+    <script>
+    let isMuted = false;
+
+    window.addEventListener("click", function startMusic() {
+        const music = document.getElementById("globalMusic");
+        if (music && music.paused && !isMuted) {
+            music.volume = 0.4;
+            music.play().catch(err => console.log("Autoplay blocked:", err));
+            window.removeEventListener("click", startMusic);
+        }
+    });
+
+    window.addEventListener("message", function(event) {
+        const music = document.getElementById("globalMusic");
+        if (!music) return;
+        
+        if (event.data === "play_music") {
+            if (!isMuted) music.play().catch(err => console.log(err));
+        } else if (event.data === "pause_music") {
+            music.pause();
+        } else if (event.data === "toggle_music") {
+            isMuted = !isMuted;
+            if (isMuted) {
+                music.pause();
+            } else {
+                music.play().catch(err => console.log(err));
+            }
+            
+            const iframe = document.getElementById("gameViewport");
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({
+                    type: "audio_status",
+                    muted: isMuted
+                }, "*");
+            }
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - The Trivia Game</title>
+    <link rel="stylesheet" href="designgame.css">
+    <style>
+      .leaderboard-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+        background-color: rgba(0, 0, 0, 0.75);
+        border: 2px solid gold;
+        border-radius: 8px;
+        padding: 40px;
+        width: 90%;
+        max-width: 650px;
+        max-height: 75vh;
+        overflow-y: auto;
+        box-shadow: 0px 0px 20px rgba(255, 215, 0, 0.3);
+      }
+
+      .leaderboard-container h1 {
+        color: white;
+        font-family: "Roboto Slab", serif;
+        font-size: 2.5em;
+        text-align: center;
+        margin-bottom: 25px;
+        text-shadow: 2px 2px 4px black;
+      }
+
+      .leaderboard-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        font-family: "Roboto Slab", serif;
+        color: white;
+      }
+
+      .leaderboard-table th, .leaderboard-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+      }
+
+      .leaderboard-table th {
+        background-color: rgba(255, 215, 0, 0.15);
+        color: gold;
+        font-size: 1.1em;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .leaderboard-table tr:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      .back-btn-container {
+        text-align: center;
+      }
+
+      .back-menu-btn {
+        padding: 12px 35px;
+        font-family: 'Roboto Slab', serif;
+        font-size: 1.2em;
+        font-weight: bold;
+        background-color: white;
+        color: black;
+        border: 2px solid gold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+      }
+
+      .back-menu-btn:hover {
+        background-color: gold;
+        color: black;
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <img class="newgamebg" src="wallpapers/pic1.jpg" alt="World of sports background">
+
+    <div class="leaderboard-container">
+      <h1 id="leaderboardTitle">GLOBAL LEADERBOARD</h1>
+      
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th style="width: 20%;">Rank</th>
+            <th style="width: 55%;">Player Name</th>
+            <th style="width: 25%;">High Score</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody">
+          <tr>
+            <td colspan="3" style="color: gray; font-style: italic; padding: 20px; text-align: center;">Loading Rankings...</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="back-btn-container">
+        <button id="backToMenuBtn" class="back-menu-btn">MAIN MENU</button>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const SUPABASE_URL = "https://liprvperqmbjufgugoeh.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_v_AXFLAraDZ1J41Z53XdnA_p40vhmC7";
+      
+      // Changed variable name to supabaseClient to prevent global namespace crash
+      const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+      document.addEventListener("DOMContentLoaded", function() {
+        renderLocalFallback(); 
+        fetchGlobalLeaderboard(); 
+
+        const backBtn = document.getElementById("backToMenuBtn");
+        if (backBtn) {
+            backBtn.addEventListener("click", function () {
+                window.location.href = "index.html";
+            });
+        }
+      });
+
+      async function fetchGlobalLeaderboard() {
+        const tbody = document.getElementById("leaderboardBody");
+        if (!tbody || !supabaseClient) return;
+
+        let globalLoaded = false;
+
+        // 5-second connection timeout guard
+        const timeoutId = setTimeout(() => {
+          if (!globalLoaded) {
+            globalLoaded = true;
+            console.warn("Global leaderboard fetch timed out after 5 seconds.");
+            document.getElementById("leaderboardTitle").textContent = "LOCAL LEADERBOARD (Offline)";
+            alert("Leaderboard cannot be loaded from the cloud. Reverting to your local offline records.");
+            renderLocalFallback();
+          }
+        }, 5000);
+
+        try {
+          console.log("Attempting connection to Supabase table...");
+          const { data: scores, error } = await supabaseClient
+            .from('trivia_scores')
+            .select('username, score')
+            .order('score', { ascending: false })
+            .limit(50);
+
+          if (error) throw error;
+
+          if (!globalLoaded) {
+            globalLoaded = true;
+            clearTimeout(timeoutId);
+
+            if (scores && scores.length > 0) {
+              console.log("Global scores successfully downloaded:", scores);
+              tbody.innerHTML = ""; 
+
+              scores.forEach((entry, index) => {
+                const row = document.createElement("tr");
+                const safeUsername = (entry.username || "Anonymous")
+                  .replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;");
+                const safeScore = Number(entry.score) || 0;
+
+                row.innerHTML = `
+                  <td><strong>#${index + 1}</strong></td>
+                  <td>${safeUsername}</td>
+                  <td style="color: gold; font-weight: bold;">${safeScore}</td>
+                `;
+                tbody.appendChild(row);
+              });
+            } else {
+              console.log("Supabase table returned empty.");
+            }
+          }
+        } catch (error) {
+          console.error("Cloud database sync delayed or blocked:", error);
+          if (!globalLoaded) {
+            globalLoaded = true;
+            clearTimeout(timeoutId);
+            renderLocalFallback();
+          }
+        }
+      }
+
+      function renderLocalFallback() {
+          const tbody = document.getElementById("leaderboardBody");
+          if (!tbody) return;
+
+          let scores = [];
+          try {
+              const storedScores = localStorage.getItem("trivia_scores");
+              if (storedScores) scores = JSON.parse(storedScores);
+          } catch (e) {
+              console.error(e);
+          }
+
+          if (!Array.isArray(scores)) scores = [];
+          scores.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+          const topScores = scores.slice(0, 10);
+
+          if (topScores.length === 0) return;
+
+          tbody.innerHTML = "";
+          topScores.forEach((entry, index) => {
+              const row = document.createElement("tr");
+              const safeUsername = (entry.username || "Anonymous").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+              row.innerHTML = `
+                  <td><strong>#${index + 1}</strong></td>
+                  <td>${safeUsername} (Local)</td>
+                  <td style="color: gold; font-weight: bold;">${Number(entry.score) || 0}</td>
+              `;
+              tbody.appendChild(row);
+          });
+      }
+
+      document.addEventListener("click", function() {
+          if (window.parent && window.parent.postMessage) {
+              window.parent.postMessage("play_music", "*");
+          }
+      });
+    </script>
+  </body>
+</html>

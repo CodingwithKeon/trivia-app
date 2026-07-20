@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Trivia Game</title>
+    <link rel="stylesheet" href="designgame.css">
+  </head>
+  <body>
+    <img class="newgamebg" src="wallpapers/pic2.jpg" alt="Football stadium">
+
+    <button id="gameMuteBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 10; background: rgba(0,0,0,0.6); color: gold; border: 2px solid gold; border-radius: 50%; width: 50px; height: 50px; font-size: 1.5em; cursor: pointer; font-family: 'Roboto Slab', serif; display: flex; align-items: center; justify-content: center; outline: none; transition: 0.3s;">🔊</button>
+
+    <button class="button3" id="button3">X</button>
+
+    <div id="difficultySelector" class="difficulty-selector" style="text-align: center; background-color: rgba(0,0,0,0.6); padding: 30px; border: 2px solid gold; border-radius: 8px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; min-width: 320px;">
+      <h2 style="color: white; font-family: 'Roboto Slab', serif; margin-bottom: 20px;">READY TO PLAY?</h2>
+      
+      <div style="margin-bottom: 15px;">
+        <input type="text" id="usernameInput" placeholder="Enter Username..." maxlength="20" style="padding: 12px 15px; font-size: 1.1em; font-family: 'Roboto Slab', serif; border: 2px solid gold; border-radius: 8px; background: rgba(0, 0, 0, 0.7); color: white; text-align: center; width: 85%; box-sizing: border-box; outline: none;">
+      </div>
+
+      <div id="usernameFeedback" style="color: #ff4d4d; font-family: 'Roboto Slab', serif; font-size: 0.95em; min-height: 20px; margin-bottom: 15px; font-weight: bold; text-shadow: 1px 1px 2px black; display: none;"></div>
+
+      <button class="difficulty-btn" id="startQuizBtn" style="padding: 10px 25px; font-family: 'Roboto Slab', serif; font-size: 1.2em; font-weight: bold; background-color: white; color: black; border: 2px solid gold; border-radius: 8px; cursor: pointer; transition: 0.3s;">START GAME</button>
+    </div>
+
+    <div id="endGameScreen" style="display: none; text-align: center; background-color: rgba(0,0,0,0.85); padding: 40px; border: 2px solid gold; border-radius: 8px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; min-width: 350px; box-shadow: 0px 0px 20px rgba(255, 215, 0, 0.4);">
+      <h1 style="color: white; font-family: 'Roboto Slab', serif; font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px black;">QUIZ COMPLETE!</h1>
+      <p id="endUsername" style="color: white; font-family: 'Roboto Slab', serif; font-size: 1.3em; margin-bottom: 20px; text-transform: uppercase;"></p>
+      
+      <div style="background-color: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+        <p style="color: #aaa; font-family: 'Roboto Slab', serif; font-size: 1em; margin-bottom: 5px;">YOUR FINAL SCORE</p>
+        <p id="endScoreDisplay" style="color: gold; font-family: 'Roboto Slab', serif; font-size: 3.5em; font-weight: bold; margin: 0; text-shadow: 2px 2px 5px black;">0</p>
+      </div>
+
+      <button id="endMenuBtn" style="padding: 12px 35px; font-family: 'Roboto Slab', serif; font-size: 1.2em; font-weight: bold; background-color: white; color: black; border: 2px solid gold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 2px 2px 5px rgba(0,0,0,0.4);">MAIN MENU</button>
+    </div>
+
+    <div id="difficultyWave" class="difficulty-wave">
+      <h1 id="waveTitle">DIFFICULTY INCREASED!</h1>
+      <p id="waveMessage">Get ready for the next level!</p>
+    </div>
+
+    <div id="quizContainer" class="quiz-container">
+      <div class="quiz-topbar">
+        <div class="score-display">Score: <span id="score">0</span></div>
+        <div class="level-display">Difficulty: <span id="difficultyName">Easy</span></div>
+      </div>
+
+      <h3>Question <span id="questionNumber">1</span>/30</h3>
+      <div class="question-text" id="question">Press start to load your first question.</div>
+      <div id="optionsContainer" class="options-grid"></div>
+
+      <button class="difficulty-btn next-btn" id="nextQuestionBtn" type="button" disabled>NEXT</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const SUPABASE_URL = "https://liprvperqmbjufgugoeh.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_v_AXFLAraDZ1J41Z53XdnA_p40vhmC7";
+      
+      const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+      function decodeHtmlEntities(text) {
+        const textArea = document.createElement("textarea");
+        textArea.innerHTML = text;
+        return textArea.value;
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      let currentUsername = "";
+      let questions = [];
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let answeredCurrentQuestion = false;
+
+      document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("startQuizBtn").addEventListener("click", startQuiz);
+        document.getElementById("nextQuestionBtn").addEventListener("click", nextQuestion);
+        
+        document.getElementById("endMenuBtn").addEventListener("click", function() {
+            window.location.href = "index.html";
+        });
+
+        const quitBtn = document.getElementById("button3");
+        if (quitBtn && typeof showQuitConfirmation === "function") {
+            quitBtn.addEventListener("click", showQuitConfirmation);
+        } else if (quitBtn) {
+            quitBtn.addEventListener("click", function() {
+                window.location.href = "index.html";
+            });
+        }
+      });
+
+      async function fetchQuestionsByDifficulty(url, difficultyLabel, points) {
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          
+          if (data.results && data.results.length > 0) {
+            let formatted = data.results.map(q => {
+              const correctAnswer = decodeHtmlEntities(q.correct_answer);
+              const incorrectAnswers = q.incorrect_answers.map(item => decodeHtmlEntities(item));
+              const options = shuffleArray([...incorrectAnswers, correctAnswer]);
+
+              return {
+                difficulty: difficultyLabel,
+                difficulty_points: points,
+                question: decodeHtmlEntities(q.question),
+                options: options,
+                answer: correctAnswer
+              };
+            });
+            return shuffleArray(formatted);
+          }
+          return [];
+        } catch (error) {
+          console.error(`Error fetching ${difficultyLabel} questions:`, error);
+          return [];
+        }
+      }
+
+      const delay = ms => new Promise(res => setTimeout(res, ms));
+
+      async function startQuiz() {
+        const inputField = document.getElementById("usernameInput");
+        const feedbackField = document.getElementById("usernameFeedback");
+        let enteredName = inputField ? inputField.value.trim() : "";
+        
+        // Clear out any old error text before validating again
+        if (feedbackField) {
+          feedbackField.style.display = "none";
+          feedbackField.textContent = "";
+        }
+
+        if (!enteredName) {
+          if (feedbackField) {
+            feedbackField.textContent = "Please enter a username to start playing!";
+            feedbackField.style.display = "block";
+          }
+          return;
+        }
+
+        enteredName = enteredName.substring(0, 20); 
+
+        const startBtn = document.getElementById("startQuizBtn");
+        startBtn.disabled = true;
+        startBtn.textContent = "CHECKING AVAILABILITY...";
+
+        if (supabaseClient) {
+          try {
+            console.log(`Checking if username "${enteredName}" is taken...`);
+            const { data: existingUser, error } = await supabaseClient
+              .from('trivia_scores')
+              .select('username')
+              .ilike('username', enteredName) 
+              .limit(1);
+
+            if (error) throw error;
+
+            if (existingUser && existingUser.length > 0) {
+              // Custom text insertion instead of an ugly pop-up window
+              if (feedbackField) {
+                feedbackField.textContent = `Username "${enteredName}" is already taken.`;
+                feedbackField.style.display = "block";
+              }
+              startBtn.disabled = false;
+              startBtn.textContent = "START GAME";
+              return; 
+            }
+          } catch (dbError) {
+            console.error("Database availability check failed:", dbError);
+          }
+        }
+
+        currentUsername = enteredName;
+        startBtn.textContent = "LOADING...";
+
+        const easyUrl = "https://opentdb.com/api.php?amount=10&category=21&difficulty=easy&type=multiple";
+        const mediumUrl = "https://opentdb.com/api.php?amount=10&category=21&difficulty=medium&type=multiple";
+        const hardUrl = "https://opentdb.com/api.php?amount=10&category=21&difficulty=hard&type=multiple";
+
+        try {
+          const easyQ = await fetchQuestionsByDifficulty(easyUrl, "Easy", 1);
+          await delay(500); 
+          const mediumQ = await fetchQuestionsByDifficulty(mediumUrl, "Medium", 2);
+          await delay(500);
+          const hardQ = await fetchQuestionsByDifficulty(hardUrl, "Hard", 3);
+
+          questions = [...easyQ, ...mediumQ, ...hardQ];
+        } catch (fetchError) {
+          console.error("Quiz retrieval error:", fetchError);
+        }
+
+        if (questions.length === 0) {
+          if (feedbackField) {
+            feedbackField.textContent = "Network error. Please wait a second and click start again.";
+            feedbackField.style.display = "block";
+          }
+          startBtn.disabled = false;
+          startBtn.textContent = "START GAME";
+          return;
+        }
+
+        currentQuestionIndex = 0;
+        score = 0;
+        answeredCurrentQuestion = false;
+
+        document.getElementById("score").textContent = score;
+        document.getElementById("difficultySelector").style.display = "none";
+        document.getElementById("quizContainer").style.display = "block";
+        displayQuestion();
+      }
+
+      function displayQuestion() {
+        const question = questions[currentQuestionIndex];
+        const optionLabels = ["A", "B", "C", "D"];
+
+        answeredCurrentQuestion = false;
+        document.getElementById("nextQuestionBtn").disabled = true;
+        document.getElementById("question").textContent = question.question;
+        document.getElementById("questionNumber").textContent = currentQuestionIndex + 1;
+        
+        let customDifficultyLabel = "Easy";
+        if (currentQuestionIndex >= 10 && currentQuestionIndex < 20) {
+          customDifficultyLabel = "Medium";
+        } else if (currentQuestionIndex >= 20) {
+          customDifficultyLabel = "Hard";
+        }
+        document.getElementById("difficultyName").textContent = customDifficultyLabel;
+
+        const optionsContainer = document.getElementById("optionsContainer");
+        optionsContainer.innerHTML = "";
+
+        question.options.forEach(function (option, index) {
+          const label = optionLabels[index];
+          const btn = document.createElement("button");
+
+          btn.type = "button";
+          btn.className = `option ${label}`;
+          btn.dataset.answer = option;
+          btn.innerHTML = `<span class="option-letter">${label}</span><span>${option}</span>`;
+          btn.addEventListener("click", function () {
+            selectAnswer(option, question.answer, btn);
+          });
+          optionsContainer.appendChild(btn);
+        });
+      }
+
+      function selectAnswer(selected, correct, element) {
+        if (answeredCurrentQuestion) return;
+        answeredCurrentQuestion = true;
+
+        const optionButtons = document.querySelectorAll(".option");
+        optionButtons.forEach(function (button) {
+          button.disabled = true;
+          if (button.dataset.answer === correct) {
+            button.classList.add("correct");
+          }
+        });
+
+        if (selected === correct) {
+          score += questions[currentQuestionIndex].difficulty_points;
+          element.classList.add("correct");
+        } else {
+          element.classList.add("wrong");
+        }
+
+        document.getElementById("score").textContent = score;
+        document.getElementById("nextQuestionBtn").disabled = false;
+      }
+
+      function nextQuestion() {
+        document.getElementById("nextQuestionBtn").disabled = true;
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex >= questions.length) {
+          endQuiz();
+          return;
+        }
+
+        if (currentQuestionIndex === 10) {
+          showDifficultyWave("MEDIUM", "Difficulty Increased to MEDIUM!");
+          setTimeout(displayQuestion, 2000);
+        } else if (currentQuestionIndex === 20) {
+          showDifficultyWave("HARD", "Difficulty Increased to HARD!");
+          setTimeout(displayQuestion, 2000);
+        } else {
+          displayQuestion();
+        }
+      }
+
+      function showDifficultyWave(difficulty, message) {
+        const wave = document.getElementById("difficultyWave");
+        document.getElementById("waveTitle").textContent = difficulty;
+        document.getElementById("waveMessage").textContent = message;
+        wave.style.display = "block";
+
+        setTimeout(function () {
+          wave.style.display = "none";
+        }, 2000);
+      }
+
+      function endQuiz() {
+        saveScore(currentUsername, score);
+        document.getElementById("quizContainer").style.display = "none";
+        document.getElementById("endUsername").textContent = `Player: ${currentUsername}`;
+        document.getElementById("endScoreDisplay").textContent = score;
+        document.getElementById("endGameScreen").style.display = "block";
+      }
+
+      async function saveScore(username, finalScore) {
+        let scoreSavedToCloud = false;
+
+        const uploadTimeout = setTimeout(() => {
+          if (!scoreSavedToCloud) {
+             console.warn("Cloud score broadcast timed out.");
+          }
+        }, 5000);
+
+        if (supabaseClient) {
+          try {
+            const { error } = await supabaseClient
+              .from('trivia_scores')
+              .insert([
+                { username: username || "Anonymous", score: Number(finalScore) || 0 }
+              ]);
+            if (!error) {
+               scoreSavedToCloud = true;
+               clearTimeout(uploadTimeout);
+               console.log("Score safely broadcasted globally!");
+            }
+          } catch (error) {
+            console.error("Database connection fault handled:", error);
+            clearTimeout(uploadTimeout);
+          }
+        } else {
+           clearTimeout(uploadTimeout);
+        }
+
+        try {
+          const storedScores = localStorage.getItem("trivia_scores");
+          let scores = storedScores ? JSON.parse(storedScores) : [];
+          if (!Array.isArray(scores)) scores = [];
+
+          scores.push({ username: username || "Anonymous", score: Number(finalScore) || 0 });
+          scores.sort((a, b) => b.score - a.score);
+          localStorage.setItem("trivia_scores", JSON.stringify(scores.slice(0, 50)));
+        } catch (error) {
+          console.error("Internal LocalStorage tracking writing fault handled:", error);
+        }
+      }
+
+      const gameMuteBtn = document.getElementById("gameMuteBtn");
+
+      function triggerGlobalMusic() {
+          if (window.parent && window.parent.postMessage) {
+              window.parent.postMessage("play_music", "*");
+          }
+      }
+      document.addEventListener("click", triggerGlobalMusic);
+
+      gameMuteBtn.addEventListener("click", function(e) {
+          e.stopPropagation(); 
+          if (window.parent && window.parent.postMessage) {
+              window.parent.postMessage("toggle_music", "*");
+          }
+      });
+
+      window.addEventListener("message", function(event) {
+          if (event.data && event.data.type === "audio_status") {
+              gameMuteBtn.textContent = event.data.muted ? "🔇" : "🔊";
+              gameMuteBtn.style.borderColor = event.data.muted ? "gray" : "gold";
+              gameMuteBtn.style.color = event.data.muted ? "gray" : "gold";
+          }
+      });
+    </script>
+  </body>
+</html>

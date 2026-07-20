@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Trivia Game</title>
+    <link rel="stylesheet" href="designgame.css">
+  </head>
+  <body>
+    <script>
+      if (window.self === window.top) {
+          window.location.href = "soundtrack.html";
+      }
+    </script>
+
+    <img class="imageappearance" src="wallpapers/pic1.jpg" alt="World of sports">
+    
+    <button id="menuMuteBtn" class="menu-mute-btn">🔊</button>
+
+    <h1 class="mainmenu">
+      WELCOME TO THE TRIVIA GAME
+    </h1>
+
+    <div class="secondarytext">
+      <button class="button1" id="button1">
+        NEW GAME
+      </button>
+    </div>
+    
+    <div class="secondary text2">
+      <button class="button2" id="button2">
+        LEADERBOARD
+      </button>
+    </div>
+
+    <script src="menu.js"></script>
+    <script>
+      const menuMuteBtn = document.getElementById("menuMuteBtn");
+
+      function triggerGlobalMusic() {
+          if (window.parent && window.parent.postMessage) {
+              window.parent.postMessage("play_music", "*");
+          }
+      }
+      document.addEventListener("click", triggerGlobalMusic);
+
+      if (menuMuteBtn) {
+        menuMuteBtn.addEventListener("click", function(e) {
+            e.stopPropagation(); 
+            if (window.parent && window.parent.postMessage) {
+                window.parent.postMessage("toggle_music", "*");
+            }
+        });
+      }
+
+      window.addEventListener("message", function(event) {
+          if (event.data && event.data.type === "audio_status" && menuMuteBtn) {
+              menuMuteBtn.textContent = event.data.muted ? "🔇" : "🔊";
+              menuMuteBtn.style.borderColor = event.data.muted ? "gray" : "gold";
+              menuMuteBtn.style.color = event.data.muted ? "gray" : "gold";
+          }
+      });
+    </script>
+  </body>
+</html>
