@@ -82,7 +82,6 @@
       let score = 0;
       let answeredCurrentQuestion = false;
 
-      // SET BACKGROUND BASED ON SELECTED CATEGORY
       function setupCategoryBackground() {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedCat = urlParams.get('category') || 'sports';
@@ -91,13 +90,10 @@
         if (!gameBg) return;
 
         if (selectedCat === 'movies') {
-          // Movies Wallpaper
-          gameBg.src = "wallpapers/pic5.jpg";
+          gameBg.src = "wallpapers/pic1.jpg";
         } else if (selectedCat === 'gk') {
-          // General Knowledge Wallpaper
-          gameBg.src = "wallpapers/pic7.jpg";
+          gameBg.src = "wallpapers/pic3.jpg";
         } else {
-          // Sports Wallpaper
           gameBg.src = "wallpapers/pic2.jpg";
         }
       }
@@ -121,36 +117,6 @@
             });
         }
       });
-
-      async function fetchQuestionsByDifficulty(url, difficultyLabel, points) {
-        try {
-          const response = await fetch(url);
-          const data = await response.json();
-          
-          if (data.results && data.results.length > 0) {
-            let formatted = data.results.map(q => {
-              const correctAnswer = decodeHtmlEntities(q.correct_answer);
-              const incorrectAnswers = q.incorrect_answers.map(item => decodeHtmlEntities(item));
-              const options = shuffleArray([...incorrectAnswers, correctAnswer]);
-
-              return {
-                difficulty: difficultyLabel,
-                difficulty_points: points,
-                question: decodeHtmlEntities(q.question),
-                options: options,
-                answer: correctAnswer
-              };
-            });
-            return shuffleArray(formatted);
-          }
-          return [];
-        } catch (error) {
-          console.error(`Error fetching ${difficultyLabel} questions:`, error);
-          return [];
-        }
-      }
-
-      const delay = ms => new Promise(res => setTimeout(res, ms));
 
       async function startQuiz() {
         const inputField = document.getElementById("usernameInput");
@@ -178,7 +144,6 @@
 
         if (supabaseClient) {
           try {
-            console.log(`Checking if username "${enteredName}" is taken...`);
             const { data: existingUser, error } = await supabaseClient
               .from('trivia_scores')
               .select('username')
@@ -189,7 +154,7 @@
 
             if (existingUser && existingUser.length > 0) {
               if (feedbackField) {
-                feedbackField.textContent = `Username "${enteredName}" is unavailable.`;
+                feedbackField.textContent = `Username "${enteredName}" is already taken.`;
                 feedbackField.style.display = "block";
               }
               startBtn.disabled = false;
@@ -207,32 +172,53 @@
         const urlParams = new URLSearchParams(window.location.search);
         const selectedCat = urlParams.get('category') || 'sports';
 
-        let categoryId = 21; // Sports
+        let categoryId = 21; // Default Sports
         if (selectedCat === 'movies') {
           categoryId = 11;   // Movies
         } else if (selectedCat === 'gk') {
           categoryId = 9;    // General Knowledge
         }
 
-        const easyUrl   = `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=easy&type=multiple`;
-        const mediumUrl = `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=medium&type=multiple`;
-        const hardUrl   = `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=hard&type=multiple`;
+        // Option 1: Fetch all 30 questions in a single API request
+        const quizUrl = `https://opentdb.com/api.php?amount=30&category=${categoryId}&type=multiple`;
 
         try {
-          const easyQ = await fetchQuestionsByDifficulty(easyUrl, "Easy", 1);
-          await delay(500); 
-          const mediumQ = await fetchQuestionsByDifficulty(mediumUrl, "Medium", 2);
-          await delay(500);
-          const hardQ = await fetchQuestionsByDifficulty(hardUrl, "Hard", 3);
+          const response = await fetch(quizUrl);
+          const data = await response.json();
 
-          questions = [...easyQ, ...mediumQ, ...hardQ];
+          if (data.results && data.results.length > 0) {
+            questions = data.results.map((q, index) => {
+              const correctAnswer = decodeHtmlEntities(q.correct_answer);
+              const incorrectAnswers = q.incorrect_answers.map(item => decodeHtmlEntities(item));
+              const options = shuffleArray([...incorrectAnswers, correctAnswer]);
+
+              // Assign difficulty & points based on question index (1-10: Easy, 11-20: Medium, 21-30: Hard)
+              let pts = 1;
+              let diffLabel = "Easy";
+              if (index >= 10 && index < 20) {
+                pts = 2;
+                diffLabel = "Medium";
+              } else if (index >= 20) {
+                pts = 3;
+                diffLabel = "Hard";
+              }
+
+              return {
+                difficulty: diffLabel,
+                difficulty_points: pts,
+                question: decodeHtmlEntities(q.question),
+                options: options,
+                answer: correctAnswer
+              };
+            });
+          }
         } catch (fetchError) {
           console.error("Quiz retrieval error:", fetchError);
         }
 
         if (questions.length === 0) {
           if (feedbackField) {
-            feedbackField.textContent = "Failed to pull questions. Please wait a second and try again.";
+            feedbackField.textContent = "Network error. Please wait a second and click start again.";
             feedbackField.style.display = "block";
           }
           startBtn.disabled = false;
@@ -340,14 +326,18 @@
       }
 
       function endQuiz() {
-        saveScore(currentUsername, score);
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedCat = urlParams.get('category') || 'sports';
+
+        saveScore(currentUsername, score, selectedCat);
+
         document.getElementById("quizContainer").style.display = "none";
         document.getElementById("endUsername").textContent = `Player: ${currentUsername}`;
         document.getElementById("endScoreDisplay").textContent = score;
         document.getElementById("endGameScreen").style.display = "block";
       }
 
-      async function saveScore(username, finalScore) {
+      async function saveScore(username, finalScore, categoryName) {
         let scoreSavedToCloud = false;
 
         const uploadTimeout = setTimeout(() => {
@@ -361,12 +351,16 @@
             const { error } = await supabaseClient
               .from('trivia_scores')
               .insert([
-                { username: username || "Anonymous", score: Number(finalScore) || 0 }
+                { 
+                  username: username || "Anonymous", 
+                  score: Number(finalScore) || 0,
+                  category: categoryName || "sports"
+                }
               ]);
             if (!error) {
                scoreSavedToCloud = true;
                clearTimeout(uploadTimeout);
-               console.log("Score safely broadcasted globally!");
+               console.log(`Score saved globally for category: ${categoryName}`);
             }
           } catch (error) {
             console.error("Database connection fault handled:", error);
@@ -381,9 +375,13 @@
           let scores = storedScores ? JSON.parse(storedScores) : [];
           if (!Array.isArray(scores)) scores = [];
 
-          scores.push({ username: username || "Anonymous", score: Number(finalScore) || 0 });
+          scores.push({ 
+            username: username || "Anonymous", 
+            score: Number(finalScore) || 0,
+            category: categoryName || "sports"
+          });
           scores.sort((a, b) => b.score - a.score);
-          localStorage.setItem("trivia_scores", JSON.stringify(scores.slice(0, 50)));
+          localStorage.setItem("trivia_scores", JSON.stringify(scores.slice(0, 100)));
         } catch (error) {
           console.error("Internal LocalStorage tracking writing fault handled:", error);
         }

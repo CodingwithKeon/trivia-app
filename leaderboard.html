@@ -32,7 +32,6 @@
         text-shadow: 2px 2px 4px black;
       }
 
-      /* Category Selector Tabs */
       .category-tabs {
         display: flex;
         justify-content: center;
@@ -152,20 +151,17 @@
       let currentCategory = "sports";
 
       document.addEventListener("DOMContentLoaded", function() {
-        // Tab click listeners
         document.querySelectorAll(".tab-btn").forEach(btn => {
           btn.addEventListener("click", function() {
             document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
             this.classList.add("active");
             currentCategory = this.getAttribute("data-category");
             
-            // Reload leaderboard for selected category
             renderLocalFallback(currentCategory);
             fetchGlobalLeaderboard(currentCategory);
           });
         });
 
-        // Initial load
         renderLocalFallback(currentCategory); 
         fetchGlobalLeaderboard(currentCategory); 
 
