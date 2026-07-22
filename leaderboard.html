@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Leaderboard - The Trivia Game</title>
     <link rel="stylesheet" href="designgame.css">
     <style>
@@ -36,7 +36,7 @@
         display: flex;
         justify-content: center;
         gap: 10px;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
       }
 
       .tab-btn {
@@ -44,7 +44,7 @@
         color: white;
         border: 2px solid gold;
         border-radius: 8px;
-        padding: 10px 16px;
+        padding: 10px 18px;
         font-family: "Roboto Slab", serif;
         font-size: 0.95em;
         font-weight: bold;
@@ -55,7 +55,6 @@
       .tab-btn.active, .tab-btn:hover {
         background-color: gold;
         color: black;
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
       }
 
       .leaderboard-table {
@@ -75,42 +74,43 @@
       .leaderboard-table th {
         background-color: rgba(255, 215, 0, 0.15);
         color: gold;
-        font-size: 1.05em;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-
-      .leaderboard-table tr:hover {
-        background-color: rgba(255, 255, 255, 0.05);
       }
 
       .back-btn-container {
-        text-align: center;
+        display: flex;
+        justify-content: center;
       }
 
-      .back-menu-btn {
-        padding: 12px 35px;
-        font-family: 'Roboto Slab', serif;
-        font-size: 1.1em;
-        font-weight: bold;
-        background-color: white;
-        color: black;
-        border: 2px solid gold;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: 0.3s;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
-      }
+      @media (max-width: 600px) {
+        .leaderboard-container {
+          width: 95%;
+          padding: 18px 12px;
+        }
 
-      .back-menu-btn:hover {
-        background-color: gold;
-        color: black;
-        transform: scale(1.05);
+        .leaderboard-container h1 {
+          font-size: 1.5em;
+        }
+
+        .category-tabs {
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .tab-btn {
+          padding: 8px 10px;
+          font-size: 0.8em;
+          flex: 1 1 30%;
+        }
+
+        .leaderboard-table th, .leaderboard-table td {
+          padding: 8px 6px;
+          font-size: 0.85em;
+        }
       }
     </style>
   </head>
   <body>
-    <img class="newgamebg" src="wallpapers/pic9.jpg" alt="Background">
+    <img class="newgamebg" src="wallpapers/pic1.jpg" alt="Background">
 
     <div class="leaderboard-container">
       <h1 id="leaderboardTitle">GLOBAL LEADERBOARD</h1>
@@ -137,7 +137,7 @@
       </table>
 
       <div class="back-btn-container">
-        <button id="backToMenuBtn" class="back-menu-btn">MAIN MENU</button>
+        <button id="backToMenuBtn" class="button1" style="position: relative; top: auto; left: auto; transform: none;">MAIN MENU</button>
       </div>
     </div>
 
@@ -182,19 +182,8 @@
         if (!tbody || !supabaseClient) return;
 
         const targetTable = getCategoryTableName(cat);
-        let globalLoaded = false;
-
-        const timeoutId = setTimeout(() => {
-          if (!globalLoaded) {
-            globalLoaded = true;
-            console.warn("Global leaderboard fetch timed out after 5 seconds.");
-            document.getElementById("leaderboardTitle").textContent = "LOCAL LEADERBOARD (Offline)";
-            renderLocalFallback(cat);
-          }
-        }, 5000);
 
         try {
-          console.log(`Fetching global scores from ${targetTable}`);
           const { data: scores, error } = await supabaseClient
             .from(targetTable)
             .select('username, score')
@@ -203,46 +192,39 @@
 
           if (error) throw error;
 
-          if (!globalLoaded) {
-            globalLoaded = true;
-            clearTimeout(timeoutId);
-            document.getElementById("leaderboardTitle").textContent = "GLOBAL LEADERBOARD";
+          document.getElementById("leaderboardTitle").textContent = "GLOBAL LEADERBOARD";
+          tbody.innerHTML = ""; 
 
-            tbody.innerHTML = ""; 
+          if (scores && scores.length > 0) {
+            scores.forEach((entry, index) => {
+              const row = document.createElement("tr");
+              const safeUsername = (entry.username || "Anonymous")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+              const safeScore = Number(entry.score) || 0;
 
-            if (scores && scores.length > 0) {
-              scores.forEach((entry, index) => {
-                const row = document.createElement("tr");
-                const safeUsername = (entry.username || "Anonymous")
-                  .replace(/&/g, "&amp;")
-                  .replace(/</g, "&lt;")
-                  .replace(/>/g, "&gt;");
-                const safeScore = Number(entry.score) || 0;
-
-                row.innerHTML = `
-                  <td><strong>#${index + 1}</strong></td>
-                  <td>${safeUsername}</td>
-                  <td style="color: gold; font-weight: bold;">${safeScore}</td>
-                `;
-                tbody.appendChild(row);
-              });
-            } else {
-              tbody.innerHTML = `<tr><td colspan="3" style="color: #aaa; padding: 20px; text-align: center;">No scores registered for this category yet!</td></tr>`;
-            }
+              row.innerHTML = `
+                <td><strong>#${index + 1}</strong></td>
+                <td>${safeUsername}</td>
+                <td style="color: gold; font-weight: bold;">${safeScore}</td>
+              `;
+              tbody.appendChild(row);
+            });
+          } else {
+            tbody.innerHTML = `<tr><td colspan="3" style="color: #aaa; padding: 20px; text-align: center;">No scores registered for this category yet!</td></tr>`;
           }
         } catch (error) {
-          console.error("Cloud database sync error:", error);
-          if (!globalLoaded) {
-            globalLoaded = true;
-            clearTimeout(timeoutId);
-            renderLocalFallback(cat);
-          }
+          console.error("Cloud database fetch error:", error);
+          renderLocalFallback(cat);
         }
       }
 
       function renderLocalFallback(cat) {
           const tbody = document.getElementById("leaderboardBody");
           if (!tbody) return;
+
+          document.getElementById("leaderboardTitle").textContent = "LOCAL LEADERBOARD (Offline)";
 
           let scores = [];
           try {

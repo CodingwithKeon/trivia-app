@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Trivia Game</title>
     <style>
       body, html {
@@ -25,7 +25,6 @@
     <iframe id="gameFrame" src="index.html"></iframe>
 
     <script>
-      // 1. Your 4 soundtrack tracks
       const rawPlaylist = [
         "soundtracks/Dentaneosuchus Hunt.mp3",
         "soundtracks/I Got a Stick Arr Bryan Teoh.mp3",
@@ -33,7 +32,6 @@
         "soundtracks/ea_fc_theme.mp3"
       ];
 
-      // Shuffle tracks randomly when the game boots
       function shufflePlaylist(array) {
         const shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -47,11 +45,9 @@
       let currentTrackIndex = 0;
       let isMuted = false;
 
-      // Initialize Audio Player
       const bgMusic = new Audio(playlist[currentTrackIndex]);
-      bgMusic.loop = false; // Moves to the next track when finished
+      bgMusic.loop = false;
 
-      // Automatically play next shuffled track
       bgMusic.addEventListener("ended", function () {
         currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
         bgMusic.src = playlist[currentTrackIndex];
@@ -61,7 +57,6 @@
         }
       });
 
-      // Respond to music triggers from index.html / newgamepage.html inside the iframe
       window.addEventListener("message", function (event) {
         if (event.data === "play_music") {
           if (bgMusic.paused && !isMuted) {
@@ -78,7 +73,6 @@
             bgMusic.play().catch(err => console.log("Playback error on unmute."));
           }
 
-          // Broadcast mute state back down into the iframe
           const frame = document.getElementById("gameFrame");
           if (frame && frame.contentWindow) {
             frame.contentWindow.postMessage({ type: "audio_status", muted: isMuted }, "*");

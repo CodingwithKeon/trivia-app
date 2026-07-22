@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Select Category - The Trivia Game</title>
     <link rel="stylesheet" href="designgame.css">
     <style>
@@ -38,16 +38,10 @@
         margin-bottom: 30px;
       }
 
-      @media (max-width: 650px) {
-        .category-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-
       .category-card {
-        background: rgba(255, 255, 255, 0.08);
+        background-color: rgba(255, 255, 255, 0.08);
         border: 2px solid gold;
-        border-radius: 12px;
+        border-radius: 10px;
         padding: 25px 15px;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -55,62 +49,78 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        text-decoration: none;
       }
 
       .category-card:hover {
-        background-color: rgba(68, 216, 68, 0.85);
-        border-color: white;
-        transform: translateY(-6px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+        background-color: gold;
+        transform: translateY(-5px);
+        box-shadow: 0px 10px 20px rgba(255, 215, 0, 0.4);
+      }
+
+      .category-card:hover .category-name,
+      .category-card:hover .category-desc {
+        color: black;
       }
 
       .category-emoji {
         font-size: 3.5em;
         margin-bottom: 12px;
-        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.6));
       }
 
       .category-name {
         color: white;
         font-family: "Roboto Slab", serif;
-        font-size: 1.2em;
+        font-size: 1.3em;
         font-weight: bold;
-        text-shadow: 1px 1px 3px black;
+        margin-bottom: 6px;
+        transition: color 0.3s ease;
       }
 
-      .category-card:hover .category-name {
-        color: white;
+      .category-desc {
+        color: #ccc;
+        font-family: "Roboto Slab", serif;
+        font-size: 0.85em;
+        transition: color 0.3s ease;
       }
 
-    .back-menu-btn {
-       background: rgba(255, 255, 255, 0.08);
-        border: 2px solid gold;
-        border-radius: 12px;
-        padding: 25px 15px;
-        cursor: pointer;
-        transition: all 0.3s ease;
+      .back-btn-container {
         display: flex;
-        flex-direction: column;
-        align-items: center;
         justify-content: center;
-        text-decoration: none;
-        color: white;
-    }
+      }
 
-    .back-menu-btn:hover {
-       background-color: rgba(68, 216, 68, 0.85);
-        border-color: white;
-        transform: translateY(-6px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-    }
+      @media (max-width: 768px) {
+        .categories-container {
+          width: 92%;
+          padding: 20px 15px;
+          max-height: 85vh;
+          overflow-y: auto;
+        }
+
+        .categories-title {
+          font-size: 1.6em;
+          margin-bottom: 18px;
+        }
+
+        .category-grid {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .category-card {
+          padding: 15px 10px;
+        }
+
+        .category-emoji {
+          font-size: 2.5em;
+          margin-bottom: 6px;
+        }
+      }
     </style>
   </head>
   <body>
-    <img class="newgamebg" src="wallpapers/pic10.jpg" alt="Background">
+    <img class="newgamebg" src="wallpapers/pic1.jpg" alt="Background">
 
     <button id="categoryMuteBtn" class="menu-mute-btn">🔊</button>
-    <button class="button3" id="button3">X</button>
 
     <div class="categories-container">
       <h1 class="categories-title">CHOOSE A CATEGORY</h1>
@@ -119,29 +129,31 @@
         <div class="category-card" data-category="sports">
           <div class="category-emoji">⚽</div>
           <div class="category-name">SPORTS</div>
+          <div class="category-desc">Test your athletic trivia</div>
         </div>
 
         <div class="category-card" data-category="movies">
           <div class="category-emoji">🎬</div>
           <div class="category-name">MOVIES</div>
+          <div class="category-desc">Films & Pop Culture</div>
         </div>
 
         <div class="category-card" data-category="gk">
           <div class="category-emoji">🧠</div>
-          <div class="category-name">GENERAL KNOWLEDGE</div>
+          <div class="category-name">GENERAL</div>
+          <div class="category-desc">Knowledge across topics</div>
         </div>
       </div>
 
-      <button id="backToMenuBtn" class="back-menu-btn">MAIN MENU</button>
+      <div class="back-btn-container">
+        <button id="backToMenuBtn" class="button1" style="position: relative; top: auto; left: auto; transform: none;">MAIN MENU</button>
+      </div>
     </div>
 
-    <script src="menu.js"></script>
     <script>
-      // Category card click handlers
       document.querySelectorAll(".category-card").forEach(card => {
         card.addEventListener("click", function() {
           const selectedCategory = this.getAttribute("data-category");
-          // Navigates to game page with selected category in URL
           window.location.href = `newgamepage.html?category=${selectedCategory}`;
         });
       });
@@ -153,7 +165,6 @@
         });
       }
 
-      // Sound System Compatibility
       const categoryMuteBtn = document.getElementById("categoryMuteBtn");
 
       function triggerGlobalMusic() {
