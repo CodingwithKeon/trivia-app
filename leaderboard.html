@@ -12,30 +12,57 @@
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 2;
-        background-color: rgba(0, 0, 0, 0.75);
+        background-color: rgba(0, 0, 0, 0.85);
         border: 2px solid gold;
-        border-radius: 8px;
-        padding: 40px;
+        border-radius: 12px;
+        padding: 30px;
         width: 90%;
-        max-width: 650px;
-        max-height: 75vh;
+        max-width: 700px;
+        max-height: 80vh;
         overflow-y: auto;
-        box-shadow: 0px 0px 20px rgba(255, 215, 0, 0.3);
+        box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.35);
       }
 
       .leaderboard-container h1 {
         color: white;
         font-family: "Roboto Slab", serif;
-        font-size: 2.5em;
+        font-size: 2.2em;
         text-align: center;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
         text-shadow: 2px 2px 4px black;
+      }
+
+      /* Category Selector Tabs */
+      .category-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 25px;
+      }
+
+      .tab-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 2px solid gold;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-family: "Roboto Slab", serif;
+        font-size: 0.95em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .tab-btn.active, .tab-btn:hover {
+        background-color: gold;
+        color: black;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
       }
 
       .leaderboard-table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
         font-family: "Roboto Slab", serif;
         color: white;
       }
@@ -49,7 +76,7 @@
       .leaderboard-table th {
         background-color: rgba(255, 215, 0, 0.15);
         color: gold;
-        font-size: 1.1em;
+        font-size: 1.05em;
         text-transform: uppercase;
         letter-spacing: 1px;
       }
@@ -65,7 +92,7 @@
       .back-menu-btn {
         padding: 12px 35px;
         font-family: 'Roboto Slab', serif;
-        font-size: 1.2em;
+        font-size: 1.1em;
         font-weight: bold;
         background-color: white;
         color: black;
@@ -84,11 +111,17 @@
     </style>
   </head>
   <body>
-    <img class="newgamebg" src="wallpapers/pic1.jpg" alt="World of sports background">
+    <img class="newgamebg" src="wallpapers/pic1.jpg" alt="Background">
 
     <div class="leaderboard-container">
       <h1 id="leaderboardTitle">GLOBAL LEADERBOARD</h1>
       
+      <div class="category-tabs">
+        <button class="tab-btn active" data-category="sports">⚽ SPORTS</button>
+        <button class="tab-btn" data-category="movies">🎬 MOVIES</button>
+        <button class="tab-btn" data-category="gk">🧠 GENERAL</button>
+      </div>
+
       <table class="leaderboard-table">
         <thead>
           <tr>
@@ -114,12 +147,27 @@
       const SUPABASE_URL = "https://liprvperqmbjufgugoeh.supabase.co";
       const SUPABASE_KEY = "sb_publishable_v_AXFLAraDZ1J41Z53XdnA_p40vhmC7";
       
-      // Changed variable name to supabaseClient to prevent global namespace crash
       const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
+      let currentCategory = "sports";
+
       document.addEventListener("DOMContentLoaded", function() {
-        renderLocalFallback(); 
-        fetchGlobalLeaderboard(); 
+        // Tab click listeners
+        document.querySelectorAll(".tab-btn").forEach(btn => {
+          btn.addEventListener("click", function() {
+            document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+            this.classList.add("active");
+            currentCategory = this.getAttribute("data-category");
+            
+            // Reload leaderboard for selected category
+            renderLocalFallback(currentCategory);
+            fetchGlobalLeaderboard(currentCategory);
+          });
+        });
+
+        // Initial load
+        renderLocalFallback(currentCategory); 
+        fetchGlobalLeaderboard(currentCategory); 
 
         const backBtn = document.getElementById("backToMenuBtn");
         if (backBtn) {
@@ -129,28 +177,27 @@
         }
       });
 
-      async function fetchGlobalLeaderboard() {
+      async function fetchGlobalLeaderboard(cat) {
         const tbody = document.getElementById("leaderboardBody");
         if (!tbody || !supabaseClient) return;
 
         let globalLoaded = false;
 
-        // 5-second connection timeout guard
         const timeoutId = setTimeout(() => {
           if (!globalLoaded) {
             globalLoaded = true;
             console.warn("Global leaderboard fetch timed out after 5 seconds.");
             document.getElementById("leaderboardTitle").textContent = "LOCAL LEADERBOARD (Offline)";
-            alert("Leaderboard cannot be loaded from the cloud. Reverting to your local offline records.");
-            renderLocalFallback();
+            renderLocalFallback(cat);
           }
         }, 5000);
 
         try {
-          console.log("Attempting connection to Supabase table...");
+          console.log(`Fetching global leaderboard for category: ${cat}`);
           const { data: scores, error } = await supabaseClient
             .from('trivia_scores')
-            .select('username, score')
+            .select('username, score, category')
+            .eq('category', cat)
             .order('score', { ascending: false })
             .limit(50);
 
@@ -160,10 +207,9 @@
             globalLoaded = true;
             clearTimeout(timeoutId);
 
-            if (scores && scores.length > 0) {
-              console.log("Global scores successfully downloaded:", scores);
-              tbody.innerHTML = ""; 
+            tbody.innerHTML = ""; 
 
+            if (scores && scores.length > 0) {
               scores.forEach((entry, index) => {
                 const row = document.createElement("tr");
                 const safeUsername = (entry.username || "Anonymous")
@@ -180,7 +226,7 @@
                 tbody.appendChild(row);
               });
             } else {
-              console.log("Supabase table returned empty.");
+              tbody.innerHTML = `<tr><td colspan="3" style="color: #aaa; padding: 20px; text-align: center;">No scores registered for this category yet!</td></tr>`;
             }
           }
         } catch (error) {
@@ -188,12 +234,12 @@
           if (!globalLoaded) {
             globalLoaded = true;
             clearTimeout(timeoutId);
-            renderLocalFallback();
+            renderLocalFallback(cat);
           }
         }
       }
 
-      function renderLocalFallback() {
+      function renderLocalFallback(cat) {
           const tbody = document.getElementById("leaderboardBody");
           if (!tbody) return;
 
@@ -206,10 +252,15 @@
           }
 
           if (!Array.isArray(scores)) scores = [];
-          scores.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
-          const topScores = scores.slice(0, 10);
 
-          if (topScores.length === 0) return;
+          const categoryScores = scores.filter(entry => (entry.category || 'sports') === cat);
+          categoryScores.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+          const topScores = categoryScores.slice(0, 10);
+
+          if (topScores.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="color: #aaa; padding: 20px; text-align: center;">No local scores yet!</td></tr>`;
+            return;
+          }
 
           tbody.innerHTML = "";
           topScores.forEach((entry, index) => {

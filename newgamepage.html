@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="designgame.css">
   </head>
   <body>
-    <img class="newgamebg" src="wallpapers/pic2.jpg" alt="Football stadium">
+    <img id="gameBg" class="newgamebg" src="wallpapers/pic2.jpg" alt="Trivia Background">
 
     <button id="gameMuteBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 10; background: rgba(0,0,0,0.6); color: gold; border: 2px solid gold; border-radius: 50%; width: 50px; height: 50px; font-size: 1.5em; cursor: pointer; font-family: 'Roboto Slab', serif; display: flex; align-items: center; justify-content: center; outline: none; transition: 0.3s;">🔊</button>
 
@@ -82,7 +82,29 @@
       let score = 0;
       let answeredCurrentQuestion = false;
 
+      // SET BACKGROUND BASED ON SELECTED CATEGORY
+      function setupCategoryBackground() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedCat = urlParams.get('category') || 'sports';
+        const gameBg = document.getElementById("gameBg");
+
+        if (!gameBg) return;
+
+        if (selectedCat === 'movies') {
+          // Movies Wallpaper
+          gameBg.src = "wallpapers/pic5.jpg";
+        } else if (selectedCat === 'gk') {
+          // General Knowledge Wallpaper
+          gameBg.src = "wallpapers/pic7.jpg";
+        } else {
+          // Sports Wallpaper
+          gameBg.src = "wallpapers/pic2.jpg";
+        }
+      }
+
       document.addEventListener("DOMContentLoaded", function () {
+        setupCategoryBackground();
+
         document.getElementById("startQuizBtn").addEventListener("click", startQuiz);
         document.getElementById("nextQuestionBtn").addEventListener("click", nextQuestion);
         
@@ -135,7 +157,6 @@
         const feedbackField = document.getElementById("usernameFeedback");
         let enteredName = inputField ? inputField.value.trim() : "";
         
-        // Clear out any old error text before validating again
         if (feedbackField) {
           feedbackField.style.display = "none";
           feedbackField.textContent = "";
@@ -167,9 +188,8 @@
             if (error) throw error;
 
             if (existingUser && existingUser.length > 0) {
-              // Custom text insertion instead of an ugly pop-up window
               if (feedbackField) {
-                feedbackField.textContent = `Username "${enteredName}" is already taken.`;
+                feedbackField.textContent = `Username "${enteredName}" is unavailable.`;
                 feedbackField.style.display = "block";
               }
               startBtn.disabled = false;
@@ -184,9 +204,19 @@
         currentUsername = enteredName;
         startBtn.textContent = "LOADING...";
 
-        const easyUrl = "https://opentdb.com/api.php?amount=10&category=21&difficulty=easy&type=multiple";
-        const mediumUrl = "https://opentdb.com/api.php?amount=10&category=21&difficulty=medium&type=multiple";
-        const hardUrl = "https://opentdb.com/api.php?amount=10&category=21&difficulty=hard&type=multiple";
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedCat = urlParams.get('category') || 'sports';
+
+        let categoryId = 21; // Sports
+        if (selectedCat === 'movies') {
+          categoryId = 11;   // Movies
+        } else if (selectedCat === 'gk') {
+          categoryId = 9;    // General Knowledge
+        }
+
+        const easyUrl   = `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=easy&type=multiple`;
+        const mediumUrl = `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=medium&type=multiple`;
+        const hardUrl   = `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=hard&type=multiple`;
 
         try {
           const easyQ = await fetchQuestionsByDifficulty(easyUrl, "Easy", 1);
@@ -202,7 +232,7 @@
 
         if (questions.length === 0) {
           if (feedbackField) {
-            feedbackField.textContent = "Network error. Please wait a second and click start again.";
+            feedbackField.textContent = "Failed to pull questions. Please wait a second and try again.";
             feedbackField.style.display = "block";
           }
           startBtn.disabled = false;
