@@ -2,43 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Trivia Game</title>
     <link rel="stylesheet" href="designgame.css">
   </head>
   <body>
-    <img id="gameBg" class="newgamebg" src="wallpapers/pic2.jpg" alt="Trivia Background">
 
-    <button id="backToCategoriesBtn" class="back-arrow-btn" title="Back to Categories">
-      &#8592; Back
-    </button>
+    <button id="gameMuteBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 10; background: rgba(0,0,0,0.6); color: gold; border: 2px solid gold; border-radius: 50%; width: 50px; height: 50px; font-size: 1.5em; cursor: pointer; font-family: 'Roboto Slab', serif; display: flex; align-items: center; justify-content: center; outline: none; transition: 0.3s;">🔊</button>
 
-    <button id="gameMuteBtn" class="menu-mute-btn">🔊</button>
+    <button class="button3" id="button3">X</button>
 
-    <button class="button3" id="button3" style="display: none;">X</button>
-
-    <div id="difficultySelector" class="difficulty-selector" style="text-align: center; background-color: rgba(0,0,0,0.85); padding: 30px; border: 2px solid gold; border-radius: 8px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; width: 90%; max-width: 400px;">
+    <div id="difficultySelector" class="difficulty-selector" style="text-align: center; background-color: rgba(0,0,0,0.6); padding: 30px; border: 2px solid gold; border-radius: 8px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; min-width: 320px;">
       <h2 style="color: white; font-family: 'Roboto Slab', serif; margin-bottom: 20px;">READY TO PLAY?</h2>
       
       <div style="margin-bottom: 15px;">
-        <input type="text" id="usernameInput" placeholder="Enter Username..." maxlength="20" style="padding: 12px 15px; font-size: 1.1em; font-family: 'Roboto Slab', serif; border: 2px solid gold; border-radius: 8px; background: rgba(0, 0, 0, 0.7); color: white; text-align: center; width: 100%; box-sizing: border-box; outline: none;">
+        <input type="text" id="usernameInput" placeholder="Enter Username..." maxlength="20" style="padding: 12px 15px; font-size: 1.1em; font-family: 'Roboto Slab', serif; border: 2px solid gold; border-radius: 8px; background: rgba(0, 0, 0, 0.7); color: white; text-align: center; width: 85%; box-sizing: border-box; outline: none;">
       </div>
 
       <div id="usernameFeedback" style="color: #ff4d4d; font-family: 'Roboto Slab', serif; font-size: 0.95em; min-height: 20px; margin-bottom: 15px; font-weight: bold; text-shadow: 1px 1px 2px black; display: none;"></div>
 
-      <button class="button1" id="startQuizBtn" style="position: relative; top: auto; left: auto; transform: none; width: 100%;">START GAME</button>
+      <button class="difficulty-btn" id="startQuizBtn" style="padding: 10px 25px; font-family: 'Roboto Slab', serif; font-size: 1.2em; font-weight: bold; background-color: white; color: black; border: 2px solid gold; border-radius: 8px; cursor: pointer; transition: 0.3s;">START GAME</button>
     </div>
 
-    <div id="endGameScreen" style="display: none; text-align: center; background-color: rgba(0,0,0,0.85); padding: 30px; border: 2px solid gold; border-radius: 8px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; width: 90%; max-width: 400px; box-shadow: 0px 0px 20px rgba(255, 215, 0, 0.4);">
-      <h1 style="color: white; font-family: 'Roboto Slab', serif; font-size: 2.2em; margin-bottom: 10px;">QUIZ COMPLETE!</h1>
-      <p id="endUsername" style="color: white; font-family: 'Roboto Slab', serif; font-size: 1.2em; margin-bottom: 15px; text-transform: uppercase;"></p>
+    <div id="endGameScreen" style="display: none; text-align: center; background-color: rgba(0,0,0,0.85); padding: 40px; border: 2px solid gold; border-radius: 8px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; min-width: 350px; box-shadow: 0px 0px 20px rgba(255, 215, 0, 0.4);">
+      <h1 style="color: white; font-family: 'Roboto Slab', serif; font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px black;">QUIZ COMPLETE!</h1>
+      <p id="endUsername" style="color: white; font-family: 'Roboto Slab', serif; font-size: 1.3em; margin-bottom: 20px; text-transform: uppercase;"></p>
       
-      <div style="background-color: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; padding: 15px; margin-bottom: 25px;">
-        <p style="color: #aaa; font-family: 'Roboto Slab', serif; font-size: 0.9em; margin-bottom: 5px;">YOUR FINAL SCORE</p>
-        <p id="endScoreDisplay" style="color: gold; font-family: 'Roboto Slab', serif; font-size: 3em; font-weight: bold; margin: 0;">0</p>
+      <div style="background-color: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+        <p style="color: #aaa; font-family: 'Roboto Slab', serif; font-size: 1em; margin-bottom: 5px;">YOUR FINAL SCORE</p>
+        <p id="endScoreDisplay" style="color: gold; font-family: 'Roboto Slab', serif; font-size: 3.5em; font-weight: bold; margin: 0; text-shadow: 2px 2px 5px black;">0</p>
       </div>
 
-      <button id="endMenuBtn" class="button1" style="position: relative; top: auto; left: auto; transform: none; width: 100%;">MAIN MENU</button>
+      <button id="endMenuBtn" style="padding: 12px 35px; font-family: 'Roboto Slab', serif; font-size: 1.2em; font-weight: bold; background-color: white; color: black; border: 2px solid gold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 2px 2px 5px rgba(0,0,0,0.4);">MAIN MENU</button>
     </div>
 
     <div id="difficultyWave" class="difficulty-wave">
@@ -52,11 +47,11 @@
         <div class="level-display">Difficulty: <span id="difficultyName">Easy</span></div>
       </div>
 
-      <h3 style="margin-bottom: 10px;">Question <span id="questionNumber">1</span>/30</h3>
+      <h3>Question <span id="questionNumber">1</span>/30</h3>
       <div class="question-text" id="question">Press start to load your first question.</div>
       <div id="optionsContainer" class="options-grid"></div>
 
-      <button class="button1" id="nextQuestionBtn" type="button" style="position: relative; top: auto; left: auto; transform: none; width: 100%; margin-top: 15px;" disabled>NEXT</button>
+      <button class="difficulty-btn next-btn" id="nextQuestionBtn" type="button" disabled>NEXT</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -100,24 +95,16 @@
         if (!gameBg) return;
 
         if (selectedCat === 'movies') {
-          gameBg.src = "wallpapers/pic1.jpg";
+          gameBg.src = "wallpapers/movietheme.jpg";
         } else if (selectedCat === 'gk') {
-          gameBg.src = "wallpapers/pic3.jpg";
+          gameBg.src = "wallpapers/gk.jpg";
         } else {
-          gameBg.src = "wallpapers/pic2.jpg";
+          gameBg.src = "wallpapers/sportstheme.jpg";
         }
       }
 
       document.addEventListener("DOMContentLoaded", function () {
         setupCategoryBackground();
-
-        // Back button navigation
-        const backBtn = document.getElementById("backToCategoriesBtn");
-        if (backBtn) {
-          backBtn.addEventListener("click", function () {
-            window.location.href = "categories.html";
-          });
-        }
 
         document.getElementById("startQuizBtn").addEventListener("click", startQuiz);
         document.getElementById("nextQuestionBtn").addEventListener("click", nextQuestion);
@@ -125,6 +112,15 @@
         document.getElementById("endMenuBtn").addEventListener("click", function() {
             window.location.href = "index.html";
         });
+
+        const quitBtn = document.getElementById("button3");
+        if (quitBtn && typeof showQuitConfirmation === "function") {
+            quitBtn.addEventListener("click", showQuitConfirmation);
+        } else if (quitBtn) {
+            quitBtn.addEventListener("click", function() {
+                window.location.href = "index.html";
+            });
+        }
       });
 
       async function startQuiz() {
@@ -149,7 +145,7 @@
 
         const startBtn = document.getElementById("startQuizBtn");
         startBtn.disabled = true;
-        startBtn.textContent = "CHECKING...";
+        startBtn.textContent = "CHECKING AVAILABILITY...";
 
         const urlParams = new URLSearchParams(window.location.search);
         const selectedCat = urlParams.get('category') || 'sports';
@@ -224,7 +220,7 @@
 
         if (questions.length === 0) {
           if (feedbackField) {
-            feedbackField.textContent = "Network error. Please try again.";
+            feedbackField.textContent = "Network error. Please wait a second and click start again.";
             feedbackField.style.display = "block";
           }
           startBtn.disabled = false;
@@ -345,10 +341,17 @@
 
       async function saveScore(username, finalScore, categoryName) {
         const targetTable = getCategoryTableName(categoryName);
+        let scoreSavedToCloud = false;
+
+        const uploadTimeout = setTimeout(() => {
+          if (!scoreSavedToCloud) {
+             console.warn("Cloud score broadcast timed out.");
+          }
+        }, 5000);
 
         if (supabaseClient) {
           try {
-            await supabaseClient
+            const { error } = await supabaseClient
               .from(targetTable)
               .insert([
                 { 
@@ -356,9 +359,17 @@
                   score: Number(finalScore) || 0
                 }
               ]);
+            if (!error) {
+               scoreSavedToCloud = true;
+               clearTimeout(uploadTimeout);
+               console.log(`Saved score into ${targetTable}`);
+            }
           } catch (error) {
-            console.error("Database save error:", error);
+            console.error("Database connection fault handled:", error);
+            clearTimeout(uploadTimeout);
           }
+        } else {
+           clearTimeout(uploadTimeout);
         }
 
         try {
