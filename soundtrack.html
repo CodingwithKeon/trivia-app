@@ -1,60 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Trivia Game</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
-        iframe { width: 100%; height: 100%; border: none; display: block; }
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #000;
+      }
+
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
     </style>
-</head>
-<body>
-
-    <audio id="globalMusic" loop>
-        <source src="soundtracks/ea_fc_theme.mp3" type="audio/mpeg">
-      </audio>
-
-    <iframe src="index.html" id="gameViewport" allow="autoplay"></iframe>
+  </head>
+  <body>
+    <iframe id="gameFrame" src="index.html"></iframe>
 
     <script>
-    let isMuted = false;
+      // 1. Your 4 soundtrack tracks
+      const rawPlaylist = [
+        "soundtracks/Dentaneosuchus Hunt.mp3",
+        "soundtracks/I Got a Stick Arr Bryan Teoh.mp3",
+        "soundtracks/Morning.mp3",
+        "soundtracks/ea_fc_theme.mp3"
+      ];
 
-    window.addEventListener("click", function startMusic() {
-        const music = document.getElementById("globalMusic");
-        if (music && music.paused && !isMuted) {
-            music.volume = 0.4;
-            music.play().catch(err => console.log("Autoplay blocked:", err));
-            window.removeEventListener("click", startMusic);
+      // Shuffle tracks randomly when the game boots
+      function shufflePlaylist(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
-    });
+        return shuffled;
+      }
 
-    window.addEventListener("message", function(event) {
-        const music = document.getElementById("globalMusic");
-        if (!music) return;
-        
+      const playlist = shufflePlaylist(rawPlaylist);
+      let currentTrackIndex = 0;
+      let isMuted = false;
+
+      // Initialize Audio Player
+      const bgMusic = new Audio(playlist[currentTrackIndex]);
+      bgMusic.loop = false; // Moves to the next track when finished
+
+      // Automatically play next shuffled track
+      bgMusic.addEventListener("ended", function () {
+        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+        bgMusic.src = playlist[currentTrackIndex];
+
+        if (!isMuted) {
+          bgMusic.play().catch(err => console.log("Auto-next playback error:", err));
+        }
+      });
+
+      // Respond to music triggers from index.html / newgamepage.html inside the iframe
+      window.addEventListener("message", function (event) {
         if (event.data === "play_music") {
-            if (!isMuted) music.play().catch(err => console.log(err));
-        } else if (event.data === "pause_music") {
-            music.pause();
-        } else if (event.data === "toggle_music") {
-            isMuted = !isMuted;
-            if (isMuted) {
-                music.pause();
-            } else {
-                music.play().catch(err => console.log(err));
-            }
-            
-            const iframe = document.getElementById("gameViewport");
-            if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({
-                    type: "audio_status",
-                    muted: isMuted
-                }, "*");
-            }
+          if (bgMusic.paused && !isMuted) {
+            bgMusic.play().catch(err => console.log("User interaction required to start music."));
+          }
         }
-    });
+
+        if (event.data === "toggle_music") {
+          isMuted = !isMuted;
+
+          if (isMuted) {
+            bgMusic.pause();
+          } else {
+            bgMusic.play().catch(err => console.log("Playback error on unmute."));
+          }
+
+          // Broadcast mute state back down into the iframe
+          const frame = document.getElementById("gameFrame");
+          if (frame && frame.contentWindow) {
+            frame.contentWindow.postMessage({ type: "audio_status", muted: isMuted }, "*");
+          }
+        }
+      });
     </script>
-</body>
+  </body>
 </html>
