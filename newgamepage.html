@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Trivia Game</title>
     <link rel="stylesheet" href="designgame.css">
   </head>
@@ -49,7 +49,7 @@
       </div>
 
       <div id="timerContainer" style="text-align: center; margin-bottom: 10px;">
-        <span style="font-family: 'Roboto Slab', serif; font-size: 1.3em; font-weight: bold; color: gold; text-shadow: 2px 2px 4px black; background: rgba(0,0,0,0.5); padding: 6px 18px; border: 1px solid gold; border-radius: 20px; display: inline-block; z-index: 20;">
+        <span style="font-family: 'Roboto Slab', serif; font-size: 1.3em; font-weight: bold; color: gold; text-shadow: 2px 2px 4px black; background: rgba(0,0,0,0.5); padding: 6px 18px; border: 1px solid gold; border-radius: 20px; display: inline-block;">
           ⏳ Time Left: <span id="timerDisplay" style="color: white;">7</span>s
         </span>
       </div>
@@ -253,7 +253,7 @@
       }
 
       function startTimer() {
-        stopTimer(); // Ensure clean timer state
+        stopTimer();
         timeLeft = 7;
         const timerDisplay = document.getElementById("timerDisplay");
         if (timerDisplay) {
@@ -266,7 +266,7 @@
           if (timerDisplay) {
             timerDisplay.textContent = timeLeft;
             if (timeLeft <= 3) {
-              timerDisplay.style.color = "#ff4d4d"; // Highlight red when time is low
+              timerDisplay.style.color = "#ff4d4d"; // Red warning color
             }
           }
 
@@ -300,7 +300,7 @@
 
         document.getElementById("nextQuestionBtn").disabled = false;
 
-        // Auto-advance to the next question after 1 second if timed out
+        // Auto-advance after 1 second when time runs out
         setTimeout(() => {
           nextQuestion();
         }, 1000);
@@ -340,7 +340,6 @@
           optionsContainer.appendChild(btn);
         });
 
-        // Start the 7-second timer for this question
         startTimer();
       }
 
@@ -348,7 +347,7 @@
         if (answeredCurrentQuestion) return;
         answeredCurrentQuestion = true;
 
-        stopTimer(); // Stop timer as soon as an answer is picked
+        stopTimer();
 
         const optionButtons = document.querySelectorAll(".option");
         optionButtons.forEach(function (button) {
