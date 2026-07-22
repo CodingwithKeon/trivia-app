@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="designgame.css">
   </head>
   <body>
-    <img id="gameBg" class="newgamebg" src="wallpapers/sportstheme.jpg" alt="Trivia Background" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1;">
+    <img id="gameBg" class="newgamebg" src="wallpapers/sportstheme.jpg" alt="Trivia Background">
 
     <button id="gameMuteBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 10; background: rgba(0,0,0,0.6); color: gold; border: 2px solid gold; border-radius: 50%; width: 50px; height: 50px; font-size: 1.5em; cursor: pointer; font-family: 'Roboto Slab', serif; display: flex; align-items: center; justify-content: center; outline: none; transition: 0.3s;">🔊</button>
 
@@ -48,6 +48,12 @@
         <div class="level-display">Difficulty: <span id="difficultyName">Easy</span></div>
       </div>
 
+      <div id="timerContainer" style="text-align: center; margin-bottom: 10px;">
+        <span style="font-family: 'Roboto Slab', serif; font-size: 1.3em; font-weight: bold; color: gold; text-shadow: 2px 2px 4px black; background: rgba(0,0,0,0.5); padding: 6px 18px; border: 1px solid gold; border-radius: 20px; display: inline-block;">
+          ⏳ Time Left: <span id="timerDisplay" style="color: white;">7</span>s
+        </span>
+      </div>
+
       <h3>Question <span id="questionNumber">1</span>/30</h3>
       <div class="question-text" id="question">Press start to load your first question.</div>
       <div id="optionsContainer" class="options-grid"></div>
@@ -82,6 +88,10 @@
       let score = 0;
       let answeredCurrentQuestion = false;
 
+      // Timer variables
+      let timerInterval = null;
+      let timeLeft = 7;
+
       function getCategoryTableName(cat) {
         if (cat === 'movies') return 'trivia_scores_movies';
         if (cat === 'gk') return 'trivia_scores_gk';
@@ -108,7 +118,10 @@
         setupCategoryBackground();
 
         document.getElementById("startQuizBtn").addEventListener("click", startQuiz);
-        document.getElementById("nextQuestionBtn").addEventListener("click", nextQuestion);
+        document.getElementById("nextQuestionBtn").addEventListener("click", function() {
+          stopTimer();
+          nextQuestion();
+        });
         
         document.getElementById("endMenuBtn").addEventListener("click", function() {
             window.location.href = "index.html";
@@ -239,6 +252,60 @@
         displayQuestion();
       }
 
+      function startTimer() {
+        stopTimer(); // Ensure clean timer state
+        timeLeft = 7;
+        const timerDisplay = document.getElementById("timerDisplay");
+        if (timerDisplay) {
+          timerDisplay.textContent = timeLeft;
+          timerDisplay.style.color = "white";
+        }
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          if (timerDisplay) {
+            timerDisplay.textContent = timeLeft;
+            if (timeLeft <= 3) {
+              timerDisplay.style.color = "#ff4d4d"; // Highlight red when time is low
+            }
+          }
+
+          if (timeLeft <= 0) {
+            stopTimer();
+            handleTimeout();
+          }
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function handleTimeout() {
+        if (answeredCurrentQuestion) return;
+        answeredCurrentQuestion = true;
+
+        const currentQ = questions[currentQuestionIndex];
+        const optionButtons = document.querySelectorAll(".option");
+
+        optionButtons.forEach(function (button) {
+          button.disabled = true;
+          if (button.dataset.answer === currentQ.answer) {
+            button.classList.add("correct");
+          }
+        });
+
+        document.getElementById("nextQuestionBtn").disabled = false;
+
+        // Auto-advance to the next question after 1 second if timed out
+        setTimeout(() => {
+          nextQuestion();
+        }, 1000);
+      }
+
       function displayQuestion() {
         const question = questions[currentQuestionIndex];
         const optionLabels = ["A", "B", "C", "D"];
@@ -272,11 +339,16 @@
           });
           optionsContainer.appendChild(btn);
         });
+
+        // Start the 7-second timer for this question
+        startTimer();
       }
 
       function selectAnswer(selected, correct, element) {
         if (answeredCurrentQuestion) return;
         answeredCurrentQuestion = true;
+
+        stopTimer(); // Stop timer as soon as an answer is picked
 
         const optionButtons = document.querySelectorAll(".option");
         optionButtons.forEach(function (button) {
@@ -298,6 +370,7 @@
       }
 
       function nextQuestion() {
+        stopTimer();
         document.getElementById("nextQuestionBtn").disabled = true;
         currentQuestionIndex++;
 
@@ -318,6 +391,7 @@
       }
 
       function showDifficultyWave(difficulty, message) {
+        stopTimer();
         const wave = document.getElementById("difficultyWave");
         document.getElementById("waveTitle").textContent = difficulty;
         document.getElementById("waveMessage").textContent = message;
@@ -329,6 +403,7 @@
       }
 
       function endQuiz() {
+        stopTimer();
         const urlParams = new URLSearchParams(window.location.search);
         const selectedCat = urlParams.get('category') || 'sports';
 
