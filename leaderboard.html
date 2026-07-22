@@ -150,6 +150,12 @@
 
       let currentCategory = "sports";
 
+      function getCategoryTableName(cat) {
+        if (cat === 'movies') return 'trivia_scores_movies';
+        if (cat === 'gk') return 'trivia_scores_gk';
+        return 'trivia_scores_sports';
+      }
+
       document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll(".tab-btn").forEach(btn => {
           btn.addEventListener("click", function() {
@@ -157,12 +163,10 @@
             this.classList.add("active");
             currentCategory = this.getAttribute("data-category");
             
-            renderLocalFallback(currentCategory);
             fetchGlobalLeaderboard(currentCategory);
           });
         });
 
-        renderLocalFallback(currentCategory); 
         fetchGlobalLeaderboard(currentCategory); 
 
         const backBtn = document.getElementById("backToMenuBtn");
@@ -177,6 +181,7 @@
         const tbody = document.getElementById("leaderboardBody");
         if (!tbody || !supabaseClient) return;
 
+        const targetTable = getCategoryTableName(cat);
         let globalLoaded = false;
 
         const timeoutId = setTimeout(() => {
@@ -189,11 +194,10 @@
         }, 5000);
 
         try {
-          console.log(`Fetching global leaderboard for category: ${cat}`);
+          console.log(`Fetching global scores from ${targetTable}`);
           const { data: scores, error } = await supabaseClient
-            .from('trivia_scores')
-            .select('username, score, category')
-            .eq('category', cat)
+            .from(targetTable)
+            .select('username, score')
             .order('score', { ascending: false })
             .limit(50);
 
@@ -202,6 +206,7 @@
           if (!globalLoaded) {
             globalLoaded = true;
             clearTimeout(timeoutId);
+            document.getElementById("leaderboardTitle").textContent = "GLOBAL LEADERBOARD";
 
             tbody.innerHTML = ""; 
 
@@ -226,7 +231,7 @@
             }
           }
         } catch (error) {
-          console.error("Cloud database sync delayed or blocked:", error);
+          console.error("Cloud database sync error:", error);
           if (!globalLoaded) {
             globalLoaded = true;
             clearTimeout(timeoutId);

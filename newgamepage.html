@@ -82,6 +82,12 @@
       let score = 0;
       let answeredCurrentQuestion = false;
 
+      function getCategoryTableName(cat) {
+        if (cat === 'movies') return 'trivia_scores_movies';
+        if (cat === 'gk') return 'trivia_scores_gk';
+        return 'trivia_scores_sports';
+      }
+
       function setupCategoryBackground() {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedCat = urlParams.get('category') || 'sports';
@@ -142,19 +148,21 @@
         startBtn.disabled = true;
         startBtn.textContent = "CHECKING AVAILABILITY...";
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedCat = urlParams.get('category') || 'sports';
+        const targetTable = getCategoryTableName(selectedCat);
+
         if (supabaseClient) {
           try {
             const { data: existingUser, error } = await supabaseClient
-              .from('trivia_scores')
+              .from(targetTable)
               .select('username')
               .ilike('username', enteredName) 
               .limit(1);
 
-            if (error) throw error;
-
-            if (existingUser && existingUser.length > 0) {
+            if (!error && existingUser && existingUser.length > 0) {
               if (feedbackField) {
-                feedbackField.textContent = `Username "${enteredName}" is already taken.`;
+                feedbackField.textContent = `Username "${enteredName}" is taken in ${selectedCat.toUpperCase()}!`;
                 feedbackField.style.display = "block";
               }
               startBtn.disabled = false;
@@ -169,17 +177,13 @@
         currentUsername = enteredName;
         startBtn.textContent = "LOADING...";
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const selectedCat = urlParams.get('category') || 'sports';
-
-        let categoryId = 21; // Default Sports
+        let categoryId = 21; // Sports
         if (selectedCat === 'movies') {
           categoryId = 11;   // Movies
         } else if (selectedCat === 'gk') {
           categoryId = 9;    // General Knowledge
         }
 
-        // Option 1: Fetch all 30 questions in a single API request
         const quizUrl = `https://opentdb.com/api.php?amount=30&category=${categoryId}&type=multiple`;
 
         try {
@@ -192,7 +196,6 @@
               const incorrectAnswers = q.incorrect_answers.map(item => decodeHtmlEntities(item));
               const options = shuffleArray([...incorrectAnswers, correctAnswer]);
 
-              // Assign difficulty & points based on question index (1-10: Easy, 11-20: Medium, 21-30: Hard)
               let pts = 1;
               let diffLabel = "Easy";
               if (index >= 10 && index < 20) {
@@ -338,6 +341,7 @@
       }
 
       async function saveScore(username, finalScore, categoryName) {
+        const targetTable = getCategoryTableName(categoryName);
         let scoreSavedToCloud = false;
 
         const uploadTimeout = setTimeout(() => {
@@ -349,18 +353,17 @@
         if (supabaseClient) {
           try {
             const { error } = await supabaseClient
-              .from('trivia_scores')
+              .from(targetTable)
               .insert([
                 { 
                   username: username || "Anonymous", 
-                  score: Number(finalScore) || 0,
-                  category: categoryName || "sports"
+                  score: Number(finalScore) || 0
                 }
               ]);
             if (!error) {
                scoreSavedToCloud = true;
                clearTimeout(uploadTimeout);
-               console.log(`Score saved globally for category: ${categoryName}`);
+               console.log(`Saved score into ${targetTable}`);
             }
           } catch (error) {
             console.error("Database connection fault handled:", error);
@@ -383,7 +386,7 @@
           scores.sort((a, b) => b.score - a.score);
           localStorage.setItem("trivia_scores", JSON.stringify(scores.slice(0, 100)));
         } catch (error) {
-          console.error("Internal LocalStorage tracking writing fault handled:", error);
+          console.error("LocalStorage save fault:", error);
         }
       }
 
