@@ -11,7 +11,8 @@
 
     <button id="gameMuteBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 10; background: rgba(0,0,0,0.6); color: gold; border: 2px solid gold; border-radius: 50%; width: 50px; height: 50px; font-size: 1.5em; cursor: pointer; font-family: 'Roboto Slab', serif; display: flex; align-items: center; justify-content: center; outline: none; transition: 0.3s;">🔊</button>
 
-    <button class="button3" id="button3">X</button>
+    
+    <button class="button3" id="button3">← BACK</button>
 
     <div id="difficultySelector" class="difficulty-selector" style="text-align: center; background-color: rgba(0,0,0,0.6); padding: 30px; border: 2px solid gold; border-radius: 8px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; min-width: 320px;">
       <h2 style="color: white; font-family: 'Roboto Slab', serif; margin-bottom: 20px;">READY TO PLAY?</h2>
@@ -106,11 +107,11 @@
         if (!gameBg) return;
 
         if (selectedCat === 'movies') {
-          gameBg.src = "wallpapers/movietheme.jpg";
+          gameBg.src = "wallpapers/movietheme_upscayl_5x_high-fidelity-4x.png";
         } else if (selectedCat === 'gk') {
-          gameBg.src = "wallpapers/gk.jpg";
+          gameBg.src = "wallpapers/gk_upscayl_5x_high-fidelity-4x.png";
         } else {
-          gameBg.src = "wallpapers/sportstheme.jpg"; 
+          gameBg.src = "wallpapers/sportstheme_upscayl_5x_high-fidelity-4x.png"; 
         }
       }
 
@@ -127,12 +128,10 @@
             window.location.href = "index.html";
         });
 
-        const quitBtn = document.getElementById("button3");
-        if (quitBtn && typeof showQuitConfirmation === "function") {
-            quitBtn.addEventListener("click", showQuitConfirmation);
-        } else if (quitBtn) {
-            quitBtn.addEventListener("click", function() {
-                window.location.href = "index.html";
+       const backBtn = document.getElementById("button3");
+        if (backBtn) {
+            backBtn.addEventListener("click", function() {
+                window.location.href = "categories.html";
             });
         }
       });
