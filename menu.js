@@ -1,15 +1,38 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // 1. Create the page transition curtain dynamically
+    let overlay = document.getElementById("pageTransitionOverlay");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "pageTransitionOverlay";
+        document.body.appendChild(overlay);
+    }
+
+    // Trigger initial page reveal
+    requestAnimationFrame(function () {
+        overlay.classList.add("fade-in");
+    });
+
+    // Helper for smooth navigation fade-out
+    window.smoothNavigate = function (url) {
+        overlay.classList.remove("fade-in");
+        overlay.classList.add("fade-out");
+        setTimeout(function () {
+            window.location.href = url;
+        }, 400); // 0.4s delay matches CSS transition
+    };
+
+    // Attach click handlers to menu buttons
     const button1 = document.getElementById("button1");
     if (button1) {
         button1.addEventListener("click", function () {
-            window.location.href = "categories.html";
+            smoothNavigate("categories.html");
         });
     }
 
     const button2 = document.getElementById("button2");
     if (button2) {
         button2.addEventListener("click", function () {
-            window.location.href = "leaderboard.html";
+            smoothNavigate("leaderboard.html");
         });
     }
 
@@ -37,7 +60,11 @@ function showQuitConfirmation() {
     yesBtn.textContent = "YES";
     yesBtn.style.cssText = "background-color: white; color: black; border: 2px solid gold; border-radius: 8px; padding: 10px 25px; font-size: 1.1em; margin-right: 15px; cursor: pointer; font-family: 'Roboto Slab', serif;";
     yesBtn.addEventListener("click", function () {
-        window.location.href = "index.html";
+        if (typeof window.smoothNavigate === "function") {
+            window.smoothNavigate("categories.html");
+        } else {
+            window.location.href = "categories.html";
+        }
     });
     
     const noBtn = document.createElement("button");
@@ -46,7 +73,7 @@ function showQuitConfirmation() {
     noBtn.addEventListener("click", function () {
         document.body.removeChild(overlay);
     });
-
+    
     confirmBox.appendChild(text);
     confirmBox.appendChild(yesBtn);
     confirmBox.appendChild(noBtn);

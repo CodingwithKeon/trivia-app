@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
     <title>Select Category - The Trivia Game</title>
     <link rel="stylesheet" href="designgame.css">
     <style>
@@ -12,12 +17,12 @@
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 2;
-        background-color: rgba(0, 0, 0, 0.8);
+        background-color: rgba(0, 0, 0, 0.85);
         border: 2px solid gold;
         border-radius: 12px;
-        padding: 35px 30px;
+        padding: 30px;
         width: 90%;
-        max-width: 700px;
+        max-width: 720px;
         text-align: center;
         box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.35);
       }
@@ -25,24 +30,23 @@
       .categories-title {
         color: white;
         font-family: "Roboto Slab", serif;
-        font-size: 2.2em;
-        margin-bottom: 25px;
+        font-size: 2em;
+        margin-bottom: 20px;
         text-shadow: 2px 2px 4px black;
-        letter-spacing: 1px;
       }
 
       .category-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-bottom: 30px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
       }
 
-      .category-card {
+      .category-card, .custom-mode-card {
         background-color: rgba(255, 255, 255, 0.08);
         border: 2px solid gold;
         border-radius: 10px;
-        padding: 25px 15px;
+        padding: 20px 15px;
         cursor: pointer;
         transition: all 0.3s ease;
         display: flex;
@@ -51,68 +55,60 @@
         justify-content: center;
       }
 
-      .category-card:hover {
-        background-color: gold;
-        transform: translateY(-5px);
-        box-shadow: 0px 10px 20px rgba(255, 215, 0, 0.4);
+      .madlibs-card {
+        border-color: #00e5ff;
+        background: rgba(0, 229, 255, 0.08);
       }
 
-      .category-card:hover .category-name,
-      .category-card:hover .category-desc {
-        color: black;
+      .riddles-card {
+        border-color: #e040fb;
+        background: rgba(224, 64, 251, 0.08);
+      }
+
+      .category-card:hover {
+        background-color: gold;
+        transform: translateY(-4px);
+        box-shadow: 0px 8px 15px rgba(255, 215, 0, 0.4);
+      }
+
+      .madlibs-card:hover {
+        background-color: #00e5ff;
+        transform: translateY(-4px);
+        box-shadow: 0px 8px 15px rgba(0, 229, 255, 0.4);
+      }
+
+      .riddles-card:hover {
+        background-color: #e040fb;
+        transform: translateY(-4px);
+        box-shadow: 0px 8px 15px rgba(224, 64, 251, 0.4);
+      }
+
+      .category-card:hover *, .custom-mode-card:hover * {
+        color: black !important;
       }
 
       .category-emoji {
-        font-size: 3.5em;
-        margin-bottom: 12px;
+        font-size: 3em;
+        margin-bottom: 8px;
       }
 
       .category-name {
         color: white;
         font-family: "Roboto Slab", serif;
-        font-size: 1.3em;
+        font-size: 1.2em;
         font-weight: bold;
-        margin-bottom: 6px;
-        transition: color 0.3s ease;
+        margin-bottom: 4px;
       }
 
       .category-desc {
         color: #ccc;
         font-family: "Roboto Slab", serif;
-        font-size: 0.85em;
-        transition: color 0.3s ease;
+        font-size: 0.8em;
       }
 
-      .back-btn-container {
-        display: flex;
-        justify-content: center;
-      }
-
-      @media (max-width: 768px) {
-        .categories-container {
-          width: 92%;
-          padding: 20px 15px;
-          max-height: 85vh;
-          overflow-y: auto;
-        }
-
-        .categories-title {
-          font-size: 1.6em;
-          margin-bottom: 18px;
-        }
-
+      @media (max-width: 600px) {
         .category-grid {
           grid-template-columns: 1fr;
-          gap: 12px;
-        }
-
-        .category-card {
-          padding: 15px 10px;
-        }
-
-        .category-emoji {
-          font-size: 2.5em;
-          margin-bottom: 6px;
         }
       }
     </style>
@@ -143,11 +139,21 @@
           <div class="category-name">GENERAL</div>
           <div class="category-desc">Knowledge across topics</div>
         </div>
+
+        <div class="custom-mode-card riddles-card" onclick="window.location.href='riddles.html'">
+          <div class="category-emoji">📜</div>
+          <div class="category-name" style="color: #e040fb;">RIDDLES</div>
+          <div class="category-desc">Solve 15 mind-benders</div>
+        </div>
       </div>
 
-      <div class="back-btn-container">
-        <button id="backToMenuBtn" class="button1" style="position: relative; top: auto; left: auto; transform: none;">MAIN MENU</button>
+      <div class="custom-mode-card madlibs-card" onclick="window.location.href='madlibs.html'" style="margin-bottom: 20px;">
+        <div class="category-emoji">🎭</div>
+        <div class="category-name" style="color: #00e5ff;">MAD LIBS</div>
+        <div class="category-desc">Create funny random stories!</div>
       </div>
+
+      <button id="backToMenuBtn" class="button1" style="position: static; transform: none; width: 100%;">MAIN MENU</button>
     </div>
 
     <script>
@@ -158,37 +164,8 @@
         });
       });
 
-      const backBtn = document.getElementById("backToMenuBtn");
-      if (backBtn) {
-        backBtn.addEventListener("click", function() {
-          window.location.href = "index.html";
-        });
-      }
-
-      const categoryMuteBtn = document.getElementById("categoryMuteBtn");
-
-      function triggerGlobalMusic() {
-        if (window.parent && window.parent.postMessage) {
-          window.parent.postMessage("play_music", "*");
-        }
-      }
-      document.addEventListener("click", triggerGlobalMusic);
-
-      if (categoryMuteBtn) {
-        categoryMuteBtn.addEventListener("click", function(e) {
-          e.stopPropagation(); 
-          if (window.parent && window.parent.postMessage) {
-            window.parent.postMessage("toggle_music", "*");
-          }
-        });
-      }
-
-      window.addEventListener("message", function(event) {
-        if (event.data && event.data.type === "audio_status" && categoryMuteBtn) {
-          categoryMuteBtn.textContent = event.data.muted ? "🔇" : "🔊";
-          categoryMuteBtn.style.borderColor = event.data.muted ? "gray" : "gold";
-          categoryMuteBtn.style.color = event.data.muted ? "gray" : "gold";
-        }
+      document.getElementById("backToMenuBtn").addEventListener("click", () => {
+        window.location.href = "index.html";
       });
     </script>
   </body>

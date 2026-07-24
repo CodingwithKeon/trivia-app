@@ -3,7 +3,12 @@
   <link rel="preload" as="image" href="wallpapers/pic9_upscayl_5x_high-fidelity-4x.jpg">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
     <title>Leaderboard - The Trivia Game</title>
     <link rel="stylesheet" href="designgame.css">
     <style>
@@ -13,142 +18,233 @@
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 2;
-        background-color: rgba(0, 0, 0, 0.85);
+        background-color: rgba(0, 0, 0, 0.88);
         border: 2px solid gold;
         border-radius: 12px;
         padding: 30px;
         width: 90%;
-        max-width: 700px;
-        max-height: 80vh;
+        max-width: 760px;
+        max-height: 82vh;
         overflow-y: auto;
-        box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.35);
+        box-shadow: 0px 0px 30px rgba(255, 215, 0, 0.4);
       }
 
       .leaderboard-container h1 {
         color: white;
         font-family: "Roboto Slab", serif;
         font-size: 2.2em;
-        text-align: center;
         margin-bottom: 20px;
+        text-align: center;
         text-shadow: 2px 2px 4px black;
+        letter-spacing: 1px;
       }
 
+      /* Mode Toggle Switcher */
+      .mode-toggle-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+
+      .mode-btn {
+        padding: 10px 18px;
+        font-family: "Roboto Slab", serif;
+        font-size: 0.9em;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        outline: none;
+      }
+
+      .mode-btn.active-solo {
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        color: #000;
+        border: 2px solid gold;
+        box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+      }
+
+      .mode-btn.active-versus {
+        background: linear-gradient(135deg, #00e5ff, #0088cc);
+        color: #000;
+        border: 2px solid #00e5ff;
+        box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+      }
+
+      .mode-btn.active-poets {
+        background: linear-gradient(135deg, #e040fb, #aa00ff);
+        color: #fff;
+        border: 2px solid #e040fb;
+        box-shadow: 0 0 12px rgba(224, 64, 251, 0.6);
+      }
+
+      .mode-btn.inactive {
+        background: rgba(255, 255, 255, 0.08);
+        color: #ccc;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .mode-btn.inactive:hover {
+        background: rgba(255, 255, 255, 0.18);
+        color: white;
+      }
+
+      /* Category Filter Tabs */
       .category-tabs {
         display: flex;
         justify-content: center;
         gap: 10px;
-        margin-bottom: 20px;
+        margin-bottom: 22px;
       }
 
       .tab-btn {
-        background: rgba(255, 255, 255, 0.1);
+        background-color: rgba(0, 0, 0, 0.6);
         color: white;
-        border: 2px solid gold;
-        border-radius: 8px;
-        padding: 10px 18px;
+        border: 1px solid gold;
+        padding: 8px 18px;
+        border-radius: 6px;
         font-family: "Roboto Slab", serif;
-        font-size: 0.95em;
-        font-weight: bold;
+        font-size: 0.9em;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.25s ease;
       }
 
-      .tab-btn.active, .tab-btn:hover {
+      .tab-btn.active {
         background-color: gold;
         color: black;
+        font-weight: bold;
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
       }
 
+      /* Leaderboard Table */
       .leaderboard-table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 25px;
-        font-family: "Roboto Slab", serif;
         color: white;
+        font-family: "Roboto Slab", serif;
       }
 
       .leaderboard-table th, .leaderboard-table td {
-        padding: 12px 15px;
+        padding: 14px 12px;
         text-align: left;
-        border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 215, 0, 0.18);
       }
 
       .leaderboard-table th {
-        background-color: rgba(255, 215, 0, 0.15);
         color: gold;
+        text-transform: uppercase;
+        font-size: 0.85em;
+        letter-spacing: 1px;
       }
 
-      .back-btn-container {
-        display: flex;
-        justify-content: center;
+      .leaderboard-table tr:hover {
+        background-color: rgba(255, 255, 255, 0.04);
       }
 
-      @media (max-width: 600px) {
-        .leaderboard-container {
-          width: 95%;
-          padding: 18px 12px;
-        }
+      /* Rank Badges */
+      .rank-badge {
+        display: inline-block;
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        text-align: center;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 0.9em;
+      }
 
-        .leaderboard-container h1 {
-          font-size: 1.5em;
-        }
+      .rank-1 {
+        background: gold;
+        color: black;
+        box-shadow: 0 0 8px gold;
+      }
 
-        .category-tabs {
-          flex-wrap: wrap;
-          gap: 6px;
-        }
+      .rank-2 {
+        background: #c0c0c0;
+        color: black;
+      }
 
-        .tab-btn {
-          padding: 8px 10px;
-          font-size: 0.8em;
-          flex: 1 1 30%;
-        }
+      .rank-3 {
+        background: #cd7f32;
+        color: white;
+      }
 
-        .leaderboard-table th, .leaderboard-table td {
-          padding: 8px 6px;
-          font-size: 0.85em;
-        }
+      .rank-other {
+        color: #aaa;
+      }
+
+      /* Player Name Styling */
+      .player-name-vs {
+        font-weight: bold;
+        color: #e0e0e0;
+        font-size: 1.05em;
+      }
+
+      .wins-count-tag {
+        color: #00e5ff;
+        font-weight: bold;
+        font-size: 1.15em;
+        text-align: right;
+        text-shadow: 0 0 6px rgba(0, 229, 255, 0.4);
+      }
+
+      .poets-score-tag {
+        color: #e040fb;
+        font-weight: bold;
+        font-size: 1.15em;
+        text-align: right;
+        text-shadow: 0 0 6px rgba(224, 64, 251, 0.4);
       }
     </style>
   </head>
   <body>
-    <img class="newgamebg" src="wallpapers/pic9_upscayl_5x_high-fidelity-4x.jpg" alt="Background">
+    <img class="imageappearance" src="wallpapers/pic9_upscayl_5x_high-fidelity-4x.jpg" alt="Leaderboard Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1;">
+
+    <button id="leaderboardMuteBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 10; background: rgba(0,0,0,0.6); color: gold; border: 2px solid gold; border-radius: 50%; width: 50px; height: 50px; font-size: 1.5em; cursor: pointer; font-family: 'Roboto Slab', serif; display: flex; align-items: center; justify-content: center; outline: none; transition: 0.3s;">🔊</button>
+
+    <button class="button3" id="backToMenuBtn" style="position: fixed; top: 20px; left: 20px; z-index: 10;">← BACK</button>
 
     <div class="leaderboard-container">
-      <h1 id="leaderboardTitle">GLOBAL LEADERBOARD</h1>
-      
-      <div class="category-tabs">
-        <button class="tab-btn active" data-category="sports">⚽ SPORTS</button>
-        <button class="tab-btn" data-category="movies">🎬 MOVIES</button>
-        <button class="tab-btn" data-category="gk">🧠 GENERAL</button>
+      <h1>LEADERBOARD</h1>
+
+      <div class="mode-toggle-container">
+        <button id="soloModeBtn" class="mode-btn active-solo">SOLO HIGH SCORES</button>
+        <button id="versusModeBtn" class="mode-btn inactive">2-PLAYER WINS 🏆</button>
+        <button id="poetsModeBtn" class="mode-btn inactive">THE POETS 📜</button>
+      </div>
+
+      <div class="category-tabs" id="categoryTabs">
+        <button class="tab-btn active" data-cat="sports">SPORTS</button>
+        <button class="tab-btn" data-cat="movies">MOVIES</button>
+        <button class="tab-btn" data-cat="gk">GENERAL KNOWLEDGE</button>
       </div>
 
       <table class="leaderboard-table">
         <thead>
           <tr>
-            <th style="width: 20%;">Rank</th>
-            <th style="width: 55%;">Player Name</th>
-            <th style="width: 25%;">High Score</th>
+            <th style="width: 15%;">Rank</th>
+            <th style="width: 55%;">Player</th>
+            <th id="metricHeader" style="text-align: right; width: 30%;">Score</th>
           </tr>
         </thead>
         <tbody id="leaderboardBody">
           <tr>
-            <td colspan="3" style="color: gray; font-style: italic; padding: 20px; text-align: center;">Loading Rankings...</td>
+            <td colspan="3" style="text-align: center; color: #aaa; padding: 20px;">Loading ranks...</td>
           </tr>
         </tbody>
       </table>
-
-      <div class="back-btn-container">
-        <button id="backToMenuBtn" class="button1" style="position: relative; top: auto; left: auto; transform: none;">MAIN MENU</button>
-      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       const SUPABASE_URL = "https://liprvperqmbjufgugoeh.supabase.co";
       const SUPABASE_KEY = "sb_publishable_v_AXFLAraDZ1J41Z53XdnA_p40vhmC7";
-      
       const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
+      const urlParams = new URLSearchParams(window.location.search);
+      let currentMode = urlParams.get("tab") === "poets" ? "poets" : "solo";
       let currentCategory = "sports";
 
       function getCategoryTableName(cat) {
@@ -158,111 +254,251 @@
       }
 
       document.addEventListener("DOMContentLoaded", function() {
+        const soloBtn = document.getElementById("soloModeBtn");
+        const versusBtn = document.getElementById("versusModeBtn");
+        const poetsBtn = document.getElementById("poetsModeBtn");
+        const categoryTabs = document.getElementById("categoryTabs");
+        const metricHeader = document.getElementById("metricHeader");
+
+        function updateUIForMode(mode) {
+          currentMode = mode;
+
+          soloBtn.className = "mode-btn " + (mode === "solo" ? "active-solo" : "inactive");
+          versusBtn.className = "mode-btn " + (mode === "versus" ? "active-versus" : "inactive");
+          poetsBtn.className = "mode-btn " + (mode === "poets" ? "active-poets" : "inactive");
+
+          if (mode === "solo") {
+            categoryTabs.style.display = "flex";
+            metricHeader.textContent = "Score";
+            metricHeader.style.color = "gold";
+          } else if (mode === "versus") {
+            categoryTabs.style.display = "none";
+            metricHeader.textContent = "Total Wins";
+            metricHeader.style.color = "#00e5ff";
+          } else if (mode === "poets") {
+            categoryTabs.style.display = "none";
+            metricHeader.textContent = "Poet Score";
+            metricHeader.style.color = "#e040fb";
+          }
+
+          loadLeaderboard();
+        }
+
+        soloBtn.addEventListener("click", () => updateUIForMode("solo"));
+        versusBtn.addEventListener("click", () => updateUIForMode("versus"));
+        poetsBtn.addEventListener("click", () => updateUIForMode("poets"));
+
         document.querySelectorAll(".tab-btn").forEach(btn => {
           btn.addEventListener("click", function() {
             document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
             this.classList.add("active");
-            currentCategory = this.getAttribute("data-category");
-            
-            fetchGlobalLeaderboard(currentCategory);
+            currentCategory = this.getAttribute("data-cat");
+            loadLeaderboard();
           });
         });
 
-        fetchGlobalLeaderboard(currentCategory); 
-
         const backBtn = document.getElementById("backToMenuBtn");
         if (backBtn) {
-            backBtn.addEventListener("click", function () {
-                window.location.href = "index.html";
-            });
+          backBtn.addEventListener("click", function() {
+            window.location.href = "index.html";
+          });
         }
+
+        updateUIForMode(currentMode);
       });
 
-      async function fetchGlobalLeaderboard(cat) {
+      async function loadLeaderboard() {
         const tbody = document.getElementById("leaderboardBody");
-        if (!tbody || !supabaseClient) return;
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #aaa; padding: 20px;">Loading ranks...</td></tr>`;
 
-        const targetTable = getCategoryTableName(cat);
-
-        try {
-          const { data: scores, error } = await supabaseClient
-            .from(targetTable)
-            .select('username, score')
-            .order('score', { ascending: false })
-            .limit(50);
-
-          if (error) throw error;
-
-          document.getElementById("leaderboardTitle").textContent = "GLOBAL LEADERBOARD";
-          tbody.innerHTML = ""; 
-
-          if (scores && scores.length > 0) {
-            scores.forEach((entry, index) => {
-              const row = document.createElement("tr");
-              const safeUsername = (entry.username || "Anonymous")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
-              const safeScore = Number(entry.score) || 0;
-
-              row.innerHTML = `
-                <td><strong>#${index + 1}</strong></td>
-                <td>${safeUsername}</td>
-                <td style="color: gold; font-weight: bold;">${safeScore}</td>
-              `;
-              tbody.appendChild(row);
-            });
-          } else {
-            tbody.innerHTML = `<tr><td colspan="3" style="color: #aaa; padding: 20px; text-align: center;">No scores registered for this category yet!</td></tr>`;
-          }
-        } catch (error) {
-          console.error("Cloud database fetch error:", error);
-          renderLocalFallback(cat);
+        if (currentMode === "versus") {
+          await loadVersusWins();
+        } else if (currentMode === "poets") {
+          await loadPoetsScores();
+        } else {
+          await loadSoloScores();
         }
       }
 
-      function renderLocalFallback(cat) {
-          const tbody = document.getElementById("leaderboardBody");
-          if (!tbody) return;
-
-          document.getElementById("leaderboardTitle").textContent = "LOCAL LEADERBOARD (Offline)";
-
-          let scores = [];
-          try {
-              const storedScores = localStorage.getItem("trivia_scores");
-              if (storedScores) scores = JSON.parse(storedScores);
-          } catch (e) {
-              console.error(e);
-          }
-
-          if (!Array.isArray(scores)) scores = [];
-
-          const categoryScores = scores.filter(entry => (entry.category || 'sports') === cat);
-          categoryScores.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
-          const topScores = categoryScores.slice(0, 10);
-
-          if (topScores.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" style="color: #aaa; padding: 20px; text-align: center;">No local scores yet!</td></tr>`;
-            return;
-          }
-
-          tbody.innerHTML = "";
-          topScores.forEach((entry, index) => {
-              const row = document.createElement("tr");
-              const safeUsername = (entry.username || "Anonymous").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-              row.innerHTML = `
-                  <td><strong>#${index + 1}</strong></td>
-                  <td>${safeUsername} (Local)</td>
-                  <td style="color: gold; font-weight: bold;">${Number(entry.score) || 0}</td>
-              `;
-              tbody.appendChild(row);
-          });
+      function getRankBadgeHTML(rank) {
+        if (rank === 1) return `<span class="rank-badge rank-1">1</span>`;
+        if (rank === 2) return `<span class="rank-badge rank-2">2</span>`;
+        if (rank === 3) return `<span class="rank-badge rank-3">3</span>`;
+        return `<span class="rank-other">#${rank}</span>`;
       }
 
-      document.addEventListener("click", function() {
-          if (window.parent && window.parent.postMessage) {
-              window.parent.postMessage("play_music", "*");
+      // Load The Poets Scores
+      async function loadPoetsScores() {
+        const tbody = document.getElementById("leaderboardBody");
+        let poetsData = [];
+
+        if (supabaseClient) {
+          try {
+            const { data } = await supabaseClient
+              .from('trivia_scores_poets')
+              .select('username, score')
+              .order('score', { ascending: false })
+              .limit(10);
+
+            if (data && data.length > 0) poetsData = data;
+          } catch (e) {
+            console.error("Supabase poets fetch error:", e);
           }
+        }
+
+        if (poetsData.length === 0) {
+          try {
+            const local = localStorage.getItem("poets_scores") || localStorage.getItem("trivia_scores_poets");
+            if (local) poetsData = JSON.parse(local);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+
+        if (!Array.isArray(poetsData) || poetsData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="color: #aaa; padding: 25px; text-align: center; font-size: 1.05em;">No Poet scores recorded yet!</td></tr>`;
+          return;
+        }
+
+        poetsData.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+        tbody.innerHTML = "";
+
+        poetsData.slice(0, 10).forEach((entry, index) => {
+          const row = document.createElement("tr");
+          const safeUser = (entry.username || "Anonymous Poet").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          row.innerHTML = `
+            <td>${getRankBadgeHTML(index + 1)}</td>
+            <td style="font-weight: bold; color: #eee;">${safeUser}</td>
+            <td class="poets-score-tag">${Number(entry.score) || 0} ✒️</td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      // Load 2-Player Wins
+      async function loadVersusWins() {
+        const tbody = document.getElementById("leaderboardBody");
+        let winsData = [];
+
+        if (supabaseClient) {
+          try {
+            const { data } = await supabaseClient
+              .from('trivia_wins')
+              .select('username, wins')
+              .order('wins', { ascending: false })
+              .limit(10);
+
+            if (data && data.length > 0) winsData = data;
+          } catch (e) {
+            console.error("Supabase wins fetch error:", e);
+          }
+        }
+
+        if (winsData.length === 0) {
+          try {
+            const local = localStorage.getItem("trivia_wins");
+            if (local) winsData = JSON.parse(local);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+
+        if (!Array.isArray(winsData) || winsData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="color: #aaa; padding: 25px; text-align: center; font-size: 1.05em;">No 2-Player victories recorded yet!</td></tr>`;
+          return;
+        }
+
+        winsData.sort((a, b) => (Number(b.wins) || 0) - (Number(a.wins) || 0));
+        tbody.innerHTML = "";
+
+        winsData.slice(0, 10).forEach((entry, index) => {
+          const row = document.createElement("tr");
+          const safeUser = (entry.username || "Anonymous").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          row.innerHTML = `
+            <td>${getRankBadgeHTML(index + 1)}</td>
+            <td class="player-name-vs">${safeUser}</td>
+            <td class="wins-count-tag">${Number(entry.wins) || 0} 🏆</td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      // Load Solo High Scores
+      async function loadSoloScores() {
+        const tbody = document.getElementById("leaderboardBody");
+        const targetTable = getCategoryTableName(currentCategory);
+        let scoresData = [];
+
+        if (supabaseClient) {
+          try {
+            const { data } = await supabaseClient
+              .from(targetTable)
+              .select('username, score')
+              .order('score', { ascending: false })
+              .limit(10);
+
+            if (data && data.length > 0) scoresData = data;
+          } catch (e) {
+            console.error("Supabase score fetch error:", e);
+          }
+        }
+
+        if (scoresData.length === 0) {
+          try {
+            const local = localStorage.getItem("trivia_scores");
+            if (local) {
+              const allLocal = JSON.parse(local);
+              scoresData = allLocal.filter(entry => (entry.category || 'sports') === currentCategory);
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        }
+
+        if (!Array.isArray(scoresData) || scoresData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="color: #aaa; padding: 25px; text-align: center; font-size: 1.05em;">No high scores for this category yet!</td></tr>`;
+          return;
+        }
+
+        scoresData.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+        tbody.innerHTML = "";
+
+        scoresData.slice(0, 10).forEach((entry, index) => {
+          const row = document.createElement("tr");
+          const safeUser = (entry.username || "Anonymous").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          row.innerHTML = `
+            <td>${getRankBadgeHTML(index + 1)}</td>
+            <td style="font-weight: bold; color: #eee;">${safeUser}</td>
+            <td style="color: gold; font-weight: bold; text-align: right; font-size: 1.1em;">${Number(entry.score) || 0}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      // Audio Controls
+      const leaderboardMuteBtn = document.getElementById("leaderboardMuteBtn");
+      function triggerGlobalMusic() {
+        if (window.parent && window.parent.postMessage) {
+          window.parent.postMessage("play_music", "*");
+        }
+      }
+      document.addEventListener("click", triggerGlobalMusic);
+
+      if (leaderboardMuteBtn) {
+        leaderboardMuteBtn.addEventListener("click", function(e) {
+          e.stopPropagation(); 
+          if (window.parent && window.parent.postMessage) {
+            window.parent.postMessage("toggle_music", "*");
+          }
+        });
+      }
+
+      window.addEventListener("message", function(event) {
+        if (event.data && event.data.type === "audio_status" && leaderboardMuteBtn) {
+          leaderboardMuteBtn.textContent = event.data.muted ? "🔇" : "🔊";
+          leaderboardMuteBtn.style.borderColor = event.data.muted ? "gray" : "gold";
+          leaderboardMuteBtn.style.color = event.data.muted ? "gray" : "gold";
+        }
       });
     </script>
   </body>

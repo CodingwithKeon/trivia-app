@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+    <title>Mad Libs - The Trivia Game</title>
+    <link rel="stylesheet" href="designgame.css">
+    <style>
+      .madlibs-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+        background-color: rgba(0, 0, 0, 0.9);
+        border: 2px solid #00e5ff;
+        border-radius: 12px;
+        padding: 30px;
+        width: 90%;
+        max-width: 650px;
+        max-height: 85vh;
+        overflow-y: auto;
+        overflow-x: auto;
+        box-shadow: 0px 0px 30px rgba(0, 229, 255, 0.4);
+        text-align: center;
+        color: white;
+        font-family: "Roboto Slab", serif;
+      }
+
+      .madlibs-container h1 {
+        color: #00e5ff;
+        font-size: 2.2em;
+        margin-bottom: 5px;
+        text-shadow: 2px 2px 4px black;
+      }
+
+      .round-indicator {
+        color: gold;
+        font-size: 1em;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      /* Timer Badge */
+      .timer-badge {
+        display: inline-block;
+        background: rgba(255, 0, 85, 0.2);
+        border: 2px solid #ff0055;
+        color: #ff0055;
+        font-size: 1.1em;
+        font-weight: bold;
+        padding: 6px 16px;
+        border-radius: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 0 10px rgba(255, 0, 85, 0.4);
+        transition: color 0.3s, border-color 0.3s;
+      }
+
+      .prompt-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 229, 255, 0.3);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 25px;
+      }
+
+      .prompt-title {
+        font-size: 1.3em;
+        color: white;
+        margin-bottom: 20px;
+      }
+
+      .word-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      @media (min-width: 500px) {
+        .word-options {
+          flex-direction: row;
+        }
+      }
+
+      .option-btn {
+        flex: 1;
+        padding: 16px 20px;
+        font-family: "Roboto Slab", serif;
+        font-size: 1.1em;
+        font-weight: bold;
+        color: black;
+        background: linear-gradient(135deg, #00e5ff, #0088cc);
+        border: 2px solid #00e5ff;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        outline: none;
+      }
+
+      .option-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+      }
+
+      /* Final Story Display */
+      .story-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid gold;
+        border-radius: 10px;
+        padding: 25px;
+        font-size: 1.25em;
+        line-height: 1.7;
+        text-align: left;
+        margin-top: 15px;
+        margin-bottom: 20px;
+        color: #f0f0f0;
+        max-height: 320px;
+        overflow-y: auto;
+        overflow-x: auto;
+        word-wrap: break-word;
+      }
+
+      .highlight-word {
+        color: #00e5ff;
+        font-weight: bold;
+        text-decoration: underline;
+      }
+
+      .end-buttons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .play-again-btn {
+        width: 100%;
+        padding: 14px;
+        font-family: "Roboto Slab", serif;
+        font-size: 1.1em;
+        font-weight: bold;
+        background: gold;
+        color: black;
+        border: 2px solid gold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .play-again-btn:hover {
+        background: #ffe033;
+        transform: scale(1.02);
+      }
+
+      .categories-nav-btn {
+        position: static;
+        width: 100%;
+        padding: 14px;
+        font-family: "Roboto Slab", serif;
+        font-size: 1.1em;
+        font-weight: bold;
+        background: rgba(0, 229, 255, 0.15);
+        color: #00e5ff;
+        border: 2px solid #00e5ff;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .categories-nav-btn:hover {
+        background: #00e5ff;
+        color: black;
+        transform: scale(1.02);
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <img class="imageappearance" src="wallpapers/madlibs.jpg" alt="Mad Libs Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1;">
+
+    <button class="button3" id="backBtn" onclick="window.location.href='categories.html'" style="position: fixed; top: 20px; left: 20px; z-index: 10;">← BACK</button>
+
+    <div class="madlibs-container" id="gameContainer">
+      <h1>MAD LIBS 🎭</h1>
+      <div class="round-indicator" id="roundStatus">Preparing game...</div>
+      
+      <div class="timer-badge" id="timerDisplay">⌛ TIME LEFT: 5s</div>
+
+      <div class="prompt-box" id="playArea">
+        <div class="prompt-title" id="promptText">Loading random story API...</div>
+        
+        <div class="word-options" id="optionsContainer" style="display: none;">
+          <button class="option-btn" id="btnA">Option A</button>
+          <button class="option-btn" id="btnB">Option B</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const wordBank = {
+        noun: [
+          ["Sassy Potato", "Angry Roomba"],
+          ["Moldy Cheese Wheel", "Squeaky Rubber Duck"],
+          ["Overcooked Noodle", "Giant Flying Banana"],
+          ["Disco Ball", "Spicy Cheeto"],
+          ["Haunted Taco", "Turbo Shopping Cart"]
+        ],
+        verb: [
+          ["Moonwalked", "Aggressively Kartwheeled"],
+          ["Power-Napped", "Telepathically Burped"],
+          ["Slapped", "Aggressively Glared"],
+          ["High-Fived", "Tripped Over Air"]
+        ],
+        adjective: [
+          ["Unhinged", "Suspiciously Calm"],
+          ["Moist", "Gigantic"],
+          ["Aggressive", "Screaming"],
+          ["Super-Charged", "Smelly"]
+        ],
+        place: [
+          ["Walmart Parking Lot", "Inside a Toaster"],
+          ["Bikini Bottom", "A Haunted Taco Bell"],
+          ["The Void", "The Local Sewer"]
+        ],
+        person: [
+          ["An Evil Goose", "Shrek"],
+          ["A Crypto Bro", "An Angry Squirrel"],
+          ["Your Grandma", "A Sentient Blender"]
+        ]
+      };
+
+      let storyData = null;
+      let blanksList = [];
+      let currentRound = 0;
+      const userChoices = [];
+      
+      let timerInterval = null;
+      let timeLeft = 5;
+      let currentPair = [];
+
+      async function initMadLibs() {
+        const roundStatus = document.getElementById("roundStatus");
+        const optionsContainer = document.getElementById("optionsContainer");
+
+        try {
+          const res = await fetch("https://madlibs-api.vercel.app/api/random");
+          const data = await res.json();
+
+          if (data && data.value && data.value.blanks && data.value.template) {
+            storyData = data.value;
+            blanksList = data.value.blanks.slice(0, 10);
+          } else {
+            throw new Error("Invalid API payload");
+          }
+        } catch (err) {
+          console.warn("API unavailable, loading offline template:", err);
+          storyData = {
+            title: "The Unhinged Day Out",
+            blanks: ["noun", "verb", "adjective", "place", "noun", "verb", "adjective", "person", "verb", "noun"],
+            template: [
+              "It was a peaceful morning until ", 
+              " suddenly ", 
+              " into the middle of ", 
+              ". Feeling extremely ", 
+              ", they picked up a ", 
+              " and decided to ", 
+              ". Everything became ", 
+              " when ", 
+              " arrived to ", 
+              " the day with a giant "
+            ]
+          };
+          blanksList = storyData.blanks;
+        }
+
+        optionsContainer.style.display = "flex";
+        currentRound = 0;
+        loadNextRound();
+      }
+
+      function startRoundTimer() {
+        stopRoundTimer();
+        timeLeft = 5;
+        const timerDisplay = document.getElementById("timerDisplay");
+        if (timerDisplay) timerDisplay.textContent = `⌛ TIME LEFT: ${timeLeft}s`;
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          if (timeLeft >= 0 && timerDisplay) {
+            timerDisplay.textContent = `⌛ TIME LEFT: ${timeLeft}s`;
+          }
+
+          if (timeLeft <= 0) {
+            stopRoundTimer();
+            const randomWord = currentPair[Math.floor(Math.random() * currentPair.length)];
+            selectWord(randomWord);
+          }
+        }, 1000);
+      }
+
+      function stopRoundTimer() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function loadNextRound() {
+        if (currentRound >= blanksList.length) {
+          stopRoundTimer();
+          showFinalStory();
+          return;
+        }
+
+        const roundStatus = document.getElementById("roundStatus");
+        const promptText = document.getElementById("promptText");
+        const btnA = document.getElementById("btnA");
+        const btnB = document.getElementById("btnB");
+
+        const rawType = (blanksList[currentRound] || "noun").toLowerCase();
+        roundStatus.textContent = `ROUND ${currentRound + 1} OF ${blanksList.length}`;
+        promptText.textContent = `Choose a ${rawType.toUpperCase()}:`;
+
+        const pairs = wordBank[rawType] || wordBank["noun"];
+        currentPair = pairs[Math.floor(Math.random() * pairs.length)];
+
+        btnA.textContent = currentPair[0];
+        btnB.textContent = currentPair[1];
+
+        btnA.onclick = () => selectWord(currentPair[0]);
+        btnB.onclick = () => selectWord(currentPair[1]);
+
+        startRoundTimer();
+      }
+
+      function selectWord(chosenWord) {
+        stopRoundTimer();
+        userChoices.push(chosenWord);
+        currentRound++;
+        loadNextRound();
+      }
+
+      function showFinalStory() {
+        const gameContainer = document.getElementById("gameContainer");
+
+        let storyHTML = "";
+        const chunks = storyData.template;
+
+        chunks.forEach((chunk, i) => {
+          storyHTML += chunk;
+          if (i < userChoices.length) {
+            storyHTML += `<span class="highlight-word">${userChoices[i]}</span>`;
+          }
+        });
+
+        gameContainer.innerHTML = `
+          <h1>${storyData.title || "YOUR MAD LIBS STORY"} 📜</h1>
+          <div class="round-indicator">COMPLETED IN 10 ROUNDS!</div>
+
+          <div class="story-box">
+            ${storyHTML}
+          </div>
+
+          <div class="end-buttons-container">
+            <button class="play-again-btn" onclick="location.reload()">PLAY AGAIN 🔄</button>
+            <button class="categories-nav-btn" onclick="window.location.href='categories.html'">CATEGORIES 📋</button>
+          </div>
+        `;
+      }
+
+      initMadLibs();
+    </script>
+  </body>
+</html>

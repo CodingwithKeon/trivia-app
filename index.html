@@ -3,10 +3,135 @@
   <link rel="preload" as="image" href="wallpapers/newtriviiabg.jpg">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
     <title>The Trivia Game</title>
     <link rel="stylesheet" href="designgame.css">
-    
+    <style>
+      /* Update Notice Button - Top Right Corner */
+      .update-notice-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 25;
+        background: rgba(0, 0, 0, 0.75);
+        color: gold;
+        border: 2px solid gold;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-family: 'Roboto Slab', serif;
+        font-size: 0.9em;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+        transition: all 0.25s ease;
+      }
+
+      .update-notice-btn:hover {
+        background: gold;
+        color: black;
+        transform: scale(1.05);
+      }
+
+      /* Modal Overlay */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 100;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+      }
+
+      /* Update Modal Container */
+      .updates-modal {
+        background: rgba(15, 15, 15, 0.95);
+        border: 2px solid gold;
+        border-radius: 12px;
+        padding: 28px 24px;
+        width: 90%;
+        max-width: 520px;
+        max-height: 80vh;
+        overflow-y: auto;
+        color: white;
+        font-family: 'Roboto Slab', serif;
+        box-shadow: 0 0 35px rgba(255, 215, 0, 0.5);
+        position: relative;
+        animation: fadeIn 0.3s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+      }
+
+      .updates-modal h2 {
+        color: gold;
+        font-size: 1.8em;
+        margin-bottom: 5px;
+        text-align: center;
+        text-shadow: 1px 1px 3px black;
+      }
+
+      .updates-modal .update-date {
+        text-align: center;
+        color: #aaa;
+        font-size: 0.85em;
+        margin-bottom: 20px;
+      }
+
+      .updates-list {
+        text-align: left;
+        line-height: 1.6;
+        padding-left: 20px;
+        margin-bottom: 25px;
+      }
+
+      .updates-list li {
+        margin-bottom: 12px;
+        color: #eee;
+      }
+
+      .updates-list strong {
+        color: #e040fb;
+      }
+
+      .modal-close-btn {
+        width: 100%;
+        padding: 12px;
+        background: gold;
+        color: black;
+        border: none;
+        border-radius: 8px;
+        font-family: 'Roboto Slab', serif;
+        font-weight: bold;
+        font-size: 1em;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .modal-close-btn:hover {
+        background: #ffe066;
+      }
+
+      /* Mobile adjustment for button positioning */
+      @media screen and (max-width: 600px) {
+        .update-notice-btn {
+          top: 12px;
+          right: 12px;
+          padding: 6px 12px;
+          font-size: 0.8em;
+        }
+      }
+    </style>
   </head>
   <body>
     <script>
@@ -19,10 +144,29 @@
     
     <button id="menuMuteBtn" class="menu-mute-btn">🔊</button>
 
+    <button class="update-notice-btn" onclick="openUpdatesModal()">📢 UPDATES</button>
+
+    <div class="modal-overlay" id="updatesModal">
+      <div class="updates-modal">
+        <h2>WHAT'S NEW 📜</h2>
+        <div class="update-date">Latest Game Version & Features</div>
+        
+        <ul class="updates-list">
+          <li><strong>The Poets (Riddles Mode):</strong> Solve 15 short & fun riddles with player name input upfront.</li>
+          <li><strong>3 Lives Per Question:</strong> You now get 3 attempts (❤️❤️❤️) to guess each riddle answer.</li>
+          <li><strong>Free Word & Picture Hints:</strong> Use 1 Word Hint (letter outline) & 1 Picture Hint (emoji/clue icon) per question with 0 point deductions!</li>
+          <li><strong>Mad Libs Category:</strong> Test your creativity with interactive word choices and custom hilarious stories.</li>
+          <li><strong>Mobile Experience Upgrades:</strong> Smooth touch navigation, thumb-friendly buttons, and zero accidental input zooming on phone screens.</li>
+          <li><strong>Global Soundtracks:</strong> Shuffled background music with individual page mute controls.</li>
+        </ul>
+
+        <button class="modal-close-btn" onclick="closeUpdatesModal()">GOT IT! 👍</button>
+      </div>
+    </div>
+
     <h1 class="mainmenu">
       WELCOME TO 
      THE TRIVIA GAME       
-  
     </h1>
 
     <div class="secondarytext">
@@ -43,6 +187,22 @@
 
     <script src="menu.js"></script>
     <script>
+      function openUpdatesModal() {
+        document.getElementById("updatesModal").style.display = "flex";
+      }
+
+      function closeUpdatesModal() {
+        document.getElementById("updatesModal").style.display = "none";
+      }
+
+      // Close modal when clicking outside content box
+      window.onclick = function(event) {
+        const modal = document.getElementById("updatesModal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
+
       const menuMuteBtn = document.getElementById("menuMuteBtn");
 
       function triggerGlobalMusic() {
@@ -68,6 +228,29 @@
               menuMuteBtn.style.color = event.data.muted ? "gray" : "gold";
           }
       });
+
+      // Menu Navigation Actions
+      const button1 = document.getElementById("button1");
+      if (button1) {
+        button1.addEventListener("click", function() {
+          if (typeof window.smoothNavigate === "function") {
+            window.smoothNavigate("categories.html");
+          } else {
+            window.location.href = "categories.html";
+          }
+        });
+      }
+
+      const button2 = document.getElementById("button2");
+      if (button2) {
+        button2.addEventListener("click", function() {
+          if (typeof window.smoothNavigate === "function") {
+            window.smoothNavigate("leaderboard.html");
+          } else {
+            window.location.href = "leaderboard.html";
+          }
+        });
+      }
     </script>
   </body>
 </html>

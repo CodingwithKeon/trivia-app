@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
     <title>The Trivia Game</title>
     <link rel="stylesheet" href="designgame.css">
   </head>
@@ -11,14 +16,24 @@
 
     <button id="gameMuteBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 10; background: rgba(0,0,0,0.6); color: gold; border: 2px solid gold; border-radius: 50%; width: 50px; height: 50px; font-size: 1.5em; cursor: pointer; font-family: 'Roboto Slab', serif; display: flex; align-items: center; justify-content: center; outline: none; transition: 0.3s;">🔊</button>
 
-    
     <button class="button3" id="button3">← BACK</button>
 
-    <div id="difficultySelector" class="difficulty-selector" style="text-align: center; background-color: rgba(0,0,0,0.6); padding: 30px; border: 2px solid gold; border-radius: 8px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; min-width: 320px;">
-      <h2 style="color: white; font-family: 'Roboto Slab', serif; margin-bottom: 20px;">READY TO PLAY?</h2>
+    <div id="difficultySelector" class="difficulty-selector" style="text-align: center; background-color: rgba(0,0,0,0.85); padding: 30px; border: 2px solid gold; border-radius: 8px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; min-width: 340px;">
+      <h2 style="color: white; font-family: 'Roboto Slab', serif; margin-bottom: 20px;">CHOOSE GAME MODE</h2>
       
-      <div style="margin-bottom: 15px;">
-        <input type="text" id="usernameInput" placeholder="Enter Username..." maxlength="20" style="padding: 12px 15px; font-size: 1.1em; font-family: 'Roboto Slab', serif; border: 2px solid gold; border-radius: 8px; background: rgba(0, 0, 0, 0.7); color: white; text-align: center; width: 85%; box-sizing: border-box; outline: none;">
+      <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 10px;">
+        <button id="modeSoloBtn" type="button" style="padding: 10px 18px; background: gold; color: black; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; font-family: 'Roboto Slab', serif; transition: 0.2s;">SOLO</button>
+        <button id="modeVersusBtn" type="button" style="padding: 10px 18px; background: rgba(255,255,255,0.2); color: white; border: 1px solid gold; font-weight: bold; cursor: pointer; border-radius: 6px; font-family: 'Roboto Slab', serif; transition: 0.2s;">2-PLAYER VERSUS</button>
+      </div>
+
+      <div id="p1InputGroup" style="margin-bottom: 15px;">
+        <label id="p1Label" style="color: gold; font-family: 'Roboto Slab', serif; display: block; margin-bottom: 5px; text-align: left; padding-left: 8%;">Player 1 Name:</label>
+        <input type="text" id="usernameInput" placeholder="Enter Player 1 Name..." maxlength="20" style="padding: 12px 15px; font-size: 1.1em; font-family: 'Roboto Slab', serif; border: 2px solid gold; border-radius: 8px; background: rgba(0, 0, 0, 0.7); color: white; text-align: center; width: 85%; box-sizing: border-box; outline: none;">
+      </div>
+
+      <div id="p2InputGroup" style="margin-bottom: 15px; display: none;">
+        <label style="color: #00e5ff; font-family: 'Roboto Slab', serif; display: block; margin-bottom: 5px; text-align: left; padding-left: 8%;">Player 2 Name:</label>
+        <input type="text" id="usernameInput2" placeholder="Enter Player 2 Name..." maxlength="20" style="padding: 12px 15px; font-size: 1.1em; font-family: 'Roboto Slab', serif; border: 2px solid #00e5ff; border-radius: 8px; background: rgba(0, 0, 0, 0.7); color: white; text-align: center; width: 85%; box-sizing: border-box; outline: none;">
       </div>
 
       <div id="usernameFeedback" style="color: #ff4d4d; font-family: 'Roboto Slab', serif; font-size: 0.95em; min-height: 20px; margin-bottom: 15px; font-weight: bold; text-shadow: 1px 1px 2px black; display: none;"></div>
@@ -27,10 +42,10 @@
     </div>
 
     <div id="endGameScreen" style="display: none; text-align: center; background-color: rgba(0,0,0,0.85); padding: 40px; border: 2px solid gold; border-radius: 8px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; min-width: 350px; box-shadow: 0px 0px 20px rgba(255, 215, 0, 0.4);">
-      <h1 style="color: white; font-family: 'Roboto Slab', serif; font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px black;">QUIZ COMPLETE!</h1>
+      <h1 id="endTitle" style="color: white; font-family: 'Roboto Slab', serif; font-size: 2.3em; margin-bottom: 10px; text-shadow: 2px 2px 4px black;">QUIZ COMPLETE!</h1>
       <p id="endUsername" style="color: white; font-family: 'Roboto Slab', serif; font-size: 1.3em; margin-bottom: 20px; text-transform: uppercase;"></p>
       
-      <div style="background-color: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+      <div id="endScoreBox" style="background-color: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; padding: 20px; margin-bottom: 30px;">
         <p style="color: #aaa; font-family: 'Roboto Slab', serif; font-size: 1em; margin-bottom: 5px;">YOUR FINAL SCORE</p>
         <p id="endScoreDisplay" style="color: gold; font-family: 'Roboto Slab', serif; font-size: 3.5em; font-weight: bold; margin: 0; text-shadow: 2px 2px 5px black;">0</p>
       </div>
@@ -44,6 +59,26 @@
     </div>
 
     <div id="quizContainer" class="quiz-container">
+      <div id="turnBanner" style="display: none; background: rgba(0, 0, 0, 0.7); border: 1px solid gold; padding: 8px 15px; border-radius: 8px; margin-bottom: 12px; color: white; font-family: 'Roboto Slab', serif; text-align: center;">
+        <span id="p1Display" style="color: gold; font-weight: bold;">P1: 0</span>
+        <span style="margin: 0 12px; color: #666;">|</span>
+        <span id="turnIndicator" style="font-size: 1.05em; font-weight: bold; color: white;">TURN: PLAYER 1</span>
+        <span style="margin: 0 12px; color: #666;">|</span>
+        <span id="p2Display" style="color: #00e5ff; font-weight: bold;">P2: 0</span>
+      </div>
+
+      <div id="powerupsContainer" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
+        <button id="powerup5050" class="powerup-btn" style="padding: 6px 14px; background: rgba(0,0,0,0.7); color: gold; border: 1px solid gold; border-radius: 6px; cursor: pointer; font-family: 'Roboto Slab', serif; font-size: 0.85em; transition: 0.2s;">
+          🌓 50/50 (1x)
+        </button>
+        <button id="powerupTime" class="powerup-btn" style="padding: 6px 14px; background: rgba(0,0,0,0.7); color: gold; border: 1px solid gold; border-radius: 6px; cursor: pointer; font-family: 'Roboto Slab', serif; font-size: 0.85em; transition: 0.2s;">
+          ⏳ +10s (1x)
+        </button>
+        <button id="powerupSkip" class="powerup-btn" style="padding: 6px 14px; background: rgba(0,0,0,0.7); color: gold; border: 1px solid gold; border-radius: 6px; cursor: pointer; font-family: 'Roboto Slab', serif; font-size: 0.85em; transition: 0.2s;">
+          ⏭️ Skip (1x)
+        </button>
+      </div>
+
       <div class="quiz-topbar">
         <div class="score-display">Score: <span id="score">0</span></div>
         <div class="level-display">Difficulty: <span id="difficultyName">Easy</span></div>
@@ -83,11 +118,24 @@
         return array;
       }
 
+      // Game Mode & Player Variables
+      let isVersusMode = false;
+      let activePlayer = 1;
+      let p1Score = 0;
+      let p2Score = 0;
+      let p1Name = "";
+      let p2Name = "";
+
       let currentUsername = "";
       let questions = [];
       let currentQuestionIndex = 0;
       let score = 0;
       let answeredCurrentQuestion = false;
+
+      // Power-up Tracking
+      let used5050 = false;
+      let usedExtraTime = false;
+      let usedSkip = false;
 
       // Timer variables
       let timerInterval = null;
@@ -118,6 +166,30 @@
       document.addEventListener("DOMContentLoaded", function () {
         setupCategoryBackground();
 
+        // Mode Toggles
+        const soloBtn = document.getElementById("modeSoloBtn");
+        const versusBtn = document.getElementById("modeVersusBtn");
+
+        soloBtn.addEventListener("click", function() {
+          isVersusMode = false;
+          soloBtn.style.background = "gold";
+          soloBtn.style.color = "black";
+          versusBtn.style.background = "rgba(255,255,255,0.2)";
+          versusBtn.style.color = "white";
+          document.getElementById("p2InputGroup").style.display = "none";
+          document.getElementById("p1Label").textContent = "Username:";
+        });
+
+        versusBtn.addEventListener("click", function() {
+          isVersusMode = true;
+          versusBtn.style.background = "#00e5ff";
+          versusBtn.style.color = "black";
+          soloBtn.style.background = "rgba(255,255,255,0.2)";
+          soloBtn.style.color = "white";
+          document.getElementById("p2InputGroup").style.display = "block";
+          document.getElementById("p1Label").textContent = "Player 1 Name:";
+        });
+
         document.getElementById("startQuizBtn").addEventListener("click", startQuiz);
         document.getElementById("nextQuestionBtn").addEventListener("click", function() {
           stopTimer();
@@ -128,7 +200,7 @@
             window.location.href = "index.html";
         });
 
-       const backBtn = document.getElementById("button3");
+        const backBtn = document.getElementById("button3");
         if (backBtn) {
             backBtn.addEventListener("click", function() {
                 window.location.href = "categories.html";
@@ -136,25 +208,106 @@
         }
       });
 
+      // Power-Up Functions
+      function use5050() {
+        if (used5050 || answeredCurrentQuestion) return;
+        
+        const currentQ = questions[currentQuestionIndex];
+        const optionButtons = Array.from(document.querySelectorAll(".option"));
+        const wrongButtons = optionButtons.filter(btn => btn.dataset.answer !== currentQ.answer);
+        
+        shuffleArray(wrongButtons);
+        if (wrongButtons[0]) wrongButtons[0].style.visibility = "hidden";
+        if (wrongButtons[1]) wrongButtons[1].style.visibility = "hidden";
+        
+        used5050 = true;
+        const btn = document.getElementById("powerup5050");
+        btn.disabled = true;
+        btn.style.opacity = "0.4";
+        btn.style.cursor = "not-allowed";
+      }
+
+      function useExtraTime() {
+        if (usedExtraTime || answeredCurrentQuestion) return;
+        
+        timeLeft += 10;
+        const timerDisplay = document.getElementById("timerDisplay");
+        if (timerDisplay) {
+          timerDisplay.textContent = timeLeft;
+          if (timeLeft > 3) {
+            timerDisplay.style.color = "white";
+          }
+        }
+        
+        usedExtraTime = true;
+        const btn = document.getElementById("powerupTime");
+        btn.disabled = true;
+        btn.style.opacity = "0.4";
+        btn.style.cursor = "not-allowed";
+      }
+
+      function useSkip() {
+        if (usedSkip || answeredCurrentQuestion) return;
+        
+        usedSkip = true;
+        const btn = document.getElementById("powerupSkip");
+        btn.disabled = true;
+        btn.style.opacity = "0.4";
+        btn.style.cursor = "not-allowed";
+        
+        stopTimer();
+        nextQuestion();
+      }
+
+      function updateVersusBanner() {
+        const banner = document.getElementById("turnBanner");
+        if (!isVersusMode) {
+          banner.style.display = "none";
+          return;
+        }
+
+        banner.style.display = "block";
+        document.getElementById("p1Display").textContent = `${p1Name}: ${p1Score}`;
+        document.getElementById("p2Display").textContent = `${p2Name}: ${p2Score}`;
+        
+        const turnText = document.getElementById("turnIndicator");
+        if (activePlayer === 1) {
+          turnText.textContent = `TURN: ${p1Name.toUpperCase()}`;
+          turnText.style.color = "gold";
+        } else {
+          turnText.textContent = `TURN: ${p2Name.toUpperCase()}`;
+          turnText.style.color = "#00e5ff";
+        }
+      }
+
       async function startQuiz() {
         const inputField = document.getElementById("usernameInput");
+        const inputField2 = document.getElementById("usernameInput2");
         const feedbackField = document.getElementById("usernameFeedback");
-        let enteredName = inputField ? inputField.value.trim() : "";
+        
+        p1Name = inputField ? inputField.value.trim().substring(0, 20) : "";
+        p2Name = isVersusMode && inputField2 ? inputField2.value.trim().substring(0, 20) : "";
         
         if (feedbackField) {
           feedbackField.style.display = "none";
           feedbackField.textContent = "";
         }
 
-        if (!enteredName) {
+        if (!p1Name) {
           if (feedbackField) {
-            feedbackField.textContent = "Please enter a username to start playing!";
+            feedbackField.textContent = "Please enter a username for Player 1!";
             feedbackField.style.display = "block";
           }
           return;
         }
 
-        enteredName = enteredName.substring(0, 20); 
+        if (isVersusMode && !p2Name) {
+          if (feedbackField) {
+            feedbackField.textContent = "Please enter a username for Player 2!";
+            feedbackField.style.display = "block";
+          }
+          return;
+        }
 
         const startBtn = document.getElementById("startQuizBtn");
         startBtn.disabled = true;
@@ -166,15 +319,15 @@
 
         if (supabaseClient) {
           try {
-            const { data: existingUser, error } = await supabaseClient
+            const { data: existingUser } = await supabaseClient
               .from(targetTable)
               .select('username')
-              .ilike('username', enteredName) 
+              .ilike('username', p1Name) 
               .limit(1);
 
-            if (!error && existingUser && existingUser.length > 0) {
+            if (existingUser && existingUser.length > 0) {
               if (feedbackField) {
-                feedbackField.textContent = `Username "${enteredName}" is taken in ${selectedCat.toUpperCase()}!`;
+                feedbackField.textContent = `Username "${p1Name}" is taken in ${selectedCat.toUpperCase()}!`;
                 feedbackField.style.display = "block";
               }
               startBtn.disabled = false;
@@ -186,7 +339,7 @@
           }
         }
 
-        currentUsername = enteredName;
+        currentUsername = p1Name;
         startBtn.textContent = "LOADING...";
 
         let categoryId = 21; // Sports
@@ -243,11 +396,37 @@
 
         currentQuestionIndex = 0;
         score = 0;
+        p1Score = 0;
+        p2Score = 0;
+        activePlayer = 1;
         answeredCurrentQuestion = false;
+
+        // Reset power-ups
+        used5050 = false;
+        usedExtraTime = false;
+        usedSkip = false;
+
+        const btn5050 = document.getElementById("powerup5050");
+        const btnTime = document.getElementById("powerupTime");
+        const btnSkip = document.getElementById("powerupSkip");
+
+        [btn5050, btnTime, btnSkip].forEach(btn => {
+          if (btn) {
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            btn.style.cursor = "pointer";
+          }
+        });
+
+        if (btn5050) btn5050.onclick = use5050;
+        if (btnTime) btnTime.onclick = useExtraTime;
+        if (btnSkip) btnSkip.onclick = useSkip;
 
         document.getElementById("score").textContent = score;
         document.getElementById("difficultySelector").style.display = "none";
         document.getElementById("quizContainer").style.display = "block";
+        
+        updateVersusBanner();
         displayQuestion();
       }
 
@@ -265,7 +444,7 @@
           if (timerDisplay) {
             timerDisplay.textContent = timeLeft;
             if (timeLeft <= 3) {
-              timerDisplay.style.color = "#ff4d4d"; // Red warning color
+              timerDisplay.style.color = "#ff4d4d";
             }
           }
 
@@ -299,7 +478,6 @@
 
         document.getElementById("nextQuestionBtn").disabled = false;
 
-        // Auto-advance after 1 second when time runs out
         setTimeout(() => {
           nextQuestion();
         }, 1000);
@@ -339,6 +517,7 @@
           optionsContainer.appendChild(btn);
         });
 
+        updateVersusBanner();
         startTimer();
       }
 
@@ -357,19 +536,35 @@
         });
 
         if (selected === correct) {
-          score += questions[currentQuestionIndex].difficulty_points;
+          const pts = questions[currentQuestionIndex].difficulty_points;
           element.classList.add("correct");
+          
+          if (isVersusMode) {
+            if (activePlayer === 1) {
+              p1Score += pts;
+            } else {
+              p2Score += pts;
+            }
+          } else {
+            score += pts;
+          }
         } else {
           element.classList.add("wrong");
         }
 
-        document.getElementById("score").textContent = score;
+        document.getElementById("score").textContent = isVersusMode ? (activePlayer === 1 ? p1Score : p2Score) : score;
+        updateVersusBanner();
         document.getElementById("nextQuestionBtn").disabled = false;
       }
 
       function nextQuestion() {
         stopTimer();
         document.getElementById("nextQuestionBtn").disabled = true;
+        
+        if (isVersusMode) {
+          activePlayer = activePlayer === 1 ? 2 : 1;
+        }
+
         currentQuestionIndex++;
 
         if (currentQuestionIndex >= questions.length) {
@@ -405,11 +600,29 @@
         const urlParams = new URLSearchParams(window.location.search);
         const selectedCat = urlParams.get('category') || 'sports';
 
-        saveScore(currentUsername, score, selectedCat);
-
         document.getElementById("quizContainer").style.display = "none";
-        document.getElementById("endUsername").textContent = `Player: ${currentUsername}`;
-        document.getElementById("endScoreDisplay").textContent = score;
+
+        if (isVersusMode) {
+          let winnerText = "IT'S A TIE!";
+          if (p1Score > p2Score) {
+            winnerText = `🏆 ${p1Name.toUpperCase()} WINS!`;
+          } else if (p2Score > p1Score) {
+            winnerText = `🏆 ${p2Name.toUpperCase()} WINS!`;
+          }
+
+          document.getElementById("endTitle").textContent = winnerText;
+          document.getElementById("endUsername").textContent = `${p1Name}: ${p1Score} | ${p2Name}: ${p2Score}`;
+          document.getElementById("endScoreDisplay").textContent = Math.max(p1Score, p2Score);
+
+          saveScore(p1Name, p1Score, selectedCat);
+          saveScore(p2Name, p2Score, selectedCat);
+        } else {
+          document.getElementById("endTitle").textContent = "QUIZ COMPLETE!";
+          document.getElementById("endUsername").textContent = `Player: ${currentUsername}`;
+          document.getElementById("endScoreDisplay").textContent = score;
+          saveScore(currentUsername, score, selectedCat);
+        }
+
         document.getElementById("endGameScreen").style.display = "block";
       }
 
